@@ -5,17 +5,20 @@ import { UserService } from "../UserService";
 
 import { beforeAll, afterAll, describe, beforeEach, test, expect } from "@jest/globals";
 import { UserRepository } from "../UserRepository";
+import { UserAuthorizationService } from "../UserAuthorizationService";
 
 describe("UserService", () => {
     // Initialize the configurations
     let mongo: MongoMemoryServer;
     let repository: UserRepository;
+    let authorization: UserAuthorizationService;
     let service: UserService;
     beforeAll(async () => {
         mongo = await MongoMemoryServer.create();
         await mongoose.connect(mongo.getUri());
         repository = new UserRepository();
-        service = new UserService(repository);
+        authorization = new UserAuthorizationService(repository);
+        service = new UserService(repository, authorization);
     });
     afterAll(async () => {
         await mongoose.disconnect();
@@ -46,7 +49,7 @@ describe("UserService", () => {
         // Create the user
         const user = await service.createUser(GENERIC_USER_CREATION_DTO);
         // Get the user
-        const found = await service.getUser(user._id.toString());
+        const found = await service.getUser(user._id.toString(), "");
         expect(found._id).toStrictEqual(user._id);
     });
 
@@ -54,7 +57,7 @@ describe("UserService", () => {
         // Create the user
         const user = await service.createUser(GENERIC_USER_CREATION_DTO);
         // Get the user
-        const publicUser = await service.getPublicUser(user._id.toString());
+        const publicUser = await service.getUser(user._id.toString(), "");
         expect(publicUser._id).toStrictEqual(user._id);
         expect(publicUser.displayName).toBe("John Doe");
         expect((publicUser as any).password).toBe(undefined);
@@ -81,11 +84,11 @@ describe("UserService", () => {
         // Create the user
         const user = await service.createUser(GENERIC_USER_CREATION_DTO);
         // Update the user's profile
-        await service.updateProfile(user._id.toString(), {
+        await service.updateProfile(user._id.toString(), user._id.toString(), {
             displayName: "Bob Doe",
         });
         // Get the user again
-        const updated = await service.getUser(user._id.toString());
+        const updated = await service.getUser(user._id.toString(), "");
         // Check the update
         expect(updated?.displayName).toBe("Bob Doe");
     });

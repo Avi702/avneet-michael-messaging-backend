@@ -1,10 +1,11 @@
 import type { CreateUserDto } from "./dto/CreateUserDto";
 import type { UpdateProfileDto } from "./dto/UpdateProfileDto";
 import type { PublicUser, User } from "./User.types";
+import { UserAction, UserAuthorizationService } from "./UserAuthorizationService";
 import type { UserRepository } from "./UserRepository";
 
 export class UserService {
-    constructor(private readonly users: UserRepository) {}
+    constructor(private readonly users: UserRepository, private readonly authorization: UserAuthorizationService) {}
 
     // Minimum age for any user
     public static readonly MINIMUM_AGE = 18;
@@ -29,12 +30,12 @@ export class UserService {
     }
 
     /**
-     * Gets a user by ID
+     * Gets a user by ID, including all information
      * @param id The ID of the user
      * @returns A promise for the User
      * @throws Error if user does not exist
      */
-    public async getUser(id: string): Promise<User> {
+    private async getPrivateUser(id: string): Promise<User> {
         const user = await this.users.findById(id);
 
         if (!user) {
@@ -46,11 +47,16 @@ export class UserService {
 
     /**
      * Returns the public (client safe) user object for a given user ID
-     * @param id The ID of the user
+     * @param userId The ID of the user to get
+     * @param actorId The ID of the user who is doing the getting
      * @returns A promise for the PublicUser
+     * @throws Error if action is not authorized
      */
-    public async getPublicUser(id: string): Promise<PublicUser> {
-        const user = await this.getUser(id);
+    public async getUser(userId: string, actorId: string): Promise<PublicUser> {
+        if (!this.authorization.authorizeAction(userId, actorId, UserAction.Get)) {
+            throw new Error(`Unable to get user ${userId}: action not authorized`);
+        }
+        const user = await this.getPrivateUser(userId);
         return {
             _id: user._id,
             createdAt: user.createdAt,
@@ -80,14 +86,19 @@ export class UserService {
 
     /**
      * Updates a user's profile
-     * @param id The ID of the user
+     * @param userId The ID of the user being updated
+     * @param actorId The ID of the user doing the updating
      * @param data The DTO for updating a profile
      * @throws Error if user does not exist
+     * @throws Error if action not authorized
      */
-    public async updateProfile(id: string, data: UpdateProfileDto): Promise<void> {
-        const user = await this.users.updateProfile(id, data);
+    public async updateProfile(userId: string, actorId: string, data: UpdateProfileDto): Promise<void> {
+        if (!this.authorization.authorizeAction(userId, actorId, UserAction.Update)) {
+            throw new Error(`Unable to update user ${userId}: action not authorized`);
+        }
+        const user = await this.users.updateProfile(userId, data);
         if (!user) {
-            throw new Error(`User with id ${id} not found`);
+            throw new Error(`User with id ${userId} not found`);
         }
     }
 }
