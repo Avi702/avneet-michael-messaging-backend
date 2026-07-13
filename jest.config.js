@@ -5,7 +5,17 @@ const tsJestTransformCfg = createDefaultPreset().transform;
 /** @type {import("jest").Config} **/
 module.exports = {
   testEnvironment: "node",
+  preset: "ts-jest",
   transform: {
     ...tsJestTransformCfg,
   },
+
+  roots: ["./src"],
+
+  testMatch: [
+    "**/__tests__/**/*.+(ts|js)",
+    "**/?(.*)+(spec|test).+(ts|js)",
+  ],
+
+  clearMocks: true,
 };
