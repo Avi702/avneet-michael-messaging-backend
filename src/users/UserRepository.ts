@@ -19,7 +19,7 @@ export class UserRepository {
      * @returns A promise for a user or null
      */
     public async findById(id: string): Promise<User | null> {
-        return await UserModel.findById(id).exec();
+        return await UserModel.findById(id).lean().exec();
     }
 
     /**
@@ -28,7 +28,7 @@ export class UserRepository {
      * @returns A promise for the user or null
      */
     public async findByEmail(email: string): Promise<User | null> {
-        return await UserModel.findOne({ email: email }).exec();
+        return await UserModel.findOne({ email: email }).lean().exec();
     }
     
     /**
@@ -49,7 +49,7 @@ export class UserRepository {
     public async updateProfile(id: string, data: UpdateProfileDto): Promise<User | null> {
         return await UserModel.findByIdAndUpdate(id, {
             $set: data,
-        }, { new: true, }).exec();
+        }, { new: true, }).lean().exec();
     }
 
     /**
@@ -60,7 +60,7 @@ export class UserRepository {
     public async updatePassword(id: string, hash: string): Promise<void> {
         await UserModel.findByIdAndUpdate(id, {
             $set: { password: hash, },
-        }).exec();
+        }).lean().exec();
     }
 
     /**
@@ -71,7 +71,7 @@ export class UserRepository {
     public async setOnline(id: string, isOnline: boolean): Promise<void> {
         await UserModel.findByIdAndUpdate(id, {
             $set: { isOnline: isOnline, },
-        }).exec();
+        }).lean().exec();
     }
 
     /**
@@ -79,6 +79,6 @@ export class UserRepository {
      * @param id The ID of the user
      */
     public async delete(id: string): Promise<void> {
-        await UserModel.findByIdAndDelete(id).exec();
+        await UserModel.findByIdAndDelete(id).lean().exec();
     }
 }
