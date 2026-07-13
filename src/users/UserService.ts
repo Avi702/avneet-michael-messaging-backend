@@ -53,7 +53,7 @@ export class UserService {
      * @throws Error if action is not authorized
      */
     public async getUser(userId: string, actorId: string): Promise<PublicUser> {
-        if (!this.authorization.authorizeAction(userId, actorId, UserAction.Get)) {
+        if (!(await this.authorization.authorizeAction(userId, actorId, UserAction.Get))) {
             throw new Error(`Unable to get user ${userId}: action not authorized`);
         }
         const user = await this.getPrivateUser(userId);
@@ -93,7 +93,7 @@ export class UserService {
      * @throws Error if action not authorized
      */
     public async updateProfile(userId: string, actorId: string, data: UpdateProfileDto): Promise<void> {
-        if (!this.authorization.authorizeAction(userId, actorId, UserAction.Update)) {
+        if (!(await this.authorization.authorizeAction(userId, actorId, UserAction.Update))) {
             throw new Error(`Unable to update user ${userId}: action not authorized`);
         }
         const user = await this.users.updateProfile(userId, data);
