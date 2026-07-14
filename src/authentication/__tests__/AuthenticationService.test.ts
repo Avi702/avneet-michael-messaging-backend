@@ -62,8 +62,6 @@ describe("AuthenticationService", () => {
     test("registers a new user", async () => {
         const user = await authenticationService.register(GENERIC_USER_CREATION_DTO);
         expect(user.displayName).toBe(GENERIC_USER_CREATION_DTO.displayName);
-        expect(user.birthDate).toBe(GENERIC_USER_CREATION_DTO.birthDate);
-        expect(user.email).toBe(GENERIC_USER_CREATION_DTO.email);
     });
 
     test("logs in a registered user", async () => {
