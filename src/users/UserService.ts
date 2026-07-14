@@ -68,6 +68,7 @@ export class UserService {
 
     /**
      * Creates a user
+     * @internal DO NOT USE THIS METHOD. Intended to be called by AuthenticationService; this writes a raw password.
      * @param data The DTO for creating a user
      * @returns A new user
      * @throws Error if user is not at least MINIMUM_AGE years old
