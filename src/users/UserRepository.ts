@@ -1,7 +1,7 @@
 import type { CreateUserDto } from "./dto/CreateUserDto";
 import type { UpdateProfileDto } from "./dto/UpdateProfileDto";
 import { UserModel } from "./User.model";
-import type { User } from "./User.types";
+import type { PublicUser, User } from "./User.types";
 
 export class UserRepository {
     /**
@@ -80,5 +80,20 @@ export class UserRepository {
      */
     public async delete(id: string): Promise<void> {
         await UserModel.findByIdAndDelete(id).lean().exec();
+    }
+
+    /**
+     * Publicizes (strips sensitive fields) from a User
+     * @param user The original User object
+     * @returns A PublicUser with the original fields stripped
+     */
+    public publicizeUser(user: User): PublicUser {
+        return {
+            _id: user._id,
+            displayName: user.displayName,
+            createdAt: user.createdAt,
+            lastOnline: user.lastOnline,
+            isOnline: user.isOnline,
+        };
     }
 }

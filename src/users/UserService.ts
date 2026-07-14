@@ -57,13 +57,7 @@ export class UserService {
             throw new Error(`Unable to get user ${userId}: action not authorized`);
         }
         const user = await this.getPrivateUser(userId);
-        return {
-            _id: user._id,
-            createdAt: user.createdAt,
-            displayName: user.displayName,
-            lastOnline: user.lastOnline,
-            isOnline: user.isOnline,
-        };
+        return this.users.publicizeUser(user);
     }
 
     /**
@@ -74,7 +68,7 @@ export class UserService {
      * @throws Error if user is not at least MINIMUM_AGE years old
      * @throws Error if user already exists with that email
      */
-    public async createUser(data: CreateUserDto): Promise<User> {
+    public async createUser(data: CreateUserDto): Promise<PublicUser> {
         if (!this.birthDateIsValid(data.birthDate)) {
             throw new Error(`User is not old enough! Birth date ${data.birthDate} is not at least ${UserService.MINIMUM_AGE} years ago`);
         }
@@ -82,7 +76,7 @@ export class UserService {
         if (isExistingUser) {
             throw new Error(`User with email ${data.email} already exists`);
         }
-        return this.users.create(data);
+        return this.users.publicizeUser(await this.users.create(data));
     }
 
     /**

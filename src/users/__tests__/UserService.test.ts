@@ -75,9 +75,6 @@ describe("UserService", () => {
     test("creates a new user", async () => {
         const user = await service.createUser(GENERIC_USER_CREATION_DTO);
         expect(user.displayName).toBe("John Doe");
-        expect(user.birthDate).toBe("2000-01-01");
-        expect(user.email).toBe("johndoe@example.com");
-        expect(user.password).toBe("password");
     });
 
     test("updates a user's profile", async () => {
