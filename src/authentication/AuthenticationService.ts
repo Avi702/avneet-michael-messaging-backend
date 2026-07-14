@@ -1,5 +1,5 @@
 import { CreateUserDto } from "../users/dto/CreateUserDto";
-import { User } from "../users/User.types";
+import { PublicUser, User } from "../users/User.types";
 import { UserRepository } from "../users/UserRepository";
 import { UserService } from "../users/UserService";
 import { JwtService, TokenPayload } from "./JwtService";
@@ -64,7 +64,7 @@ export class AuthenticationService {
      * @throws If user is not at least UserService.MINIMUM_AGE years old
      * @throws If user already exists with that email
      */
-    public async register(data: CreateUserDto): Promise<User> {
+    public async register(data: CreateUserDto): Promise<PublicUser> {
         // Hash the password
         const hashedData = {
             ...data,
@@ -82,13 +82,13 @@ export class AuthenticationService {
      * @throws If the access token is invalid
      * @throws If the user was not found
      */
-    public async authenticate(accessToken: string): Promise<User> {
+    public async authenticate(accessToken: string): Promise<PublicUser> {
         const payload = this.jwtService.verifyAccessToken(accessToken);
         const user = await this.users.findById(payload.sub);
         if (!user) {
             throw new Error(`User not found`);
         }
-        return user;
+        return this.users.publicizeUser(user);
     }
 
     /**
