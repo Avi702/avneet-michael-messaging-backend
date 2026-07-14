@@ -32,7 +32,7 @@ export class UserService {
     /**
      * Gets a user by ID, including all information
      * @param id The ID of the user
-     * @returns A promise for the User
+     * @returns The User
      * @throws Error if user does not exist
      */
     private async getPrivateUser(id: string): Promise<User> {
@@ -49,7 +49,7 @@ export class UserService {
      * Returns the public (client safe) user object for a given user ID
      * @param userId The ID of the user to get
      * @param actorId The ID of the user who is doing the getting
-     * @returns A promise for the PublicUser
+     * @returns The PublicUser
      * @throws Error if action is not authorized
      */
     public async getUser(userId: string, actorId: string): Promise<PublicUser> {
@@ -69,7 +69,7 @@ export class UserService {
     /**
      * Creates a user
      * @param data The DTO for creating a user
-     * @returns A promise for a new user
+     * @returns A new user
      * @throws Error if user is not at least MINIMUM_AGE years old
      * @throws Error if user already exists with that email
      */

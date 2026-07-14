@@ -104,7 +104,7 @@ export class MessagingService {
      * @param messageId The ID of the message with which the image is associated
      * @param actorId The ID of the user performing the action
      * @param data The DTO for uploading an image
-     * @returns A promise for the Image created
+     * @returns The Image created
      * @throws Error if not authorized
      */
     public async uploadImage(messageId: string, actorId: string, data: UploadImageDto): Promise<Image> {
@@ -122,7 +122,7 @@ export class MessagingService {
      * Finds an image by ID
      * @param imageId The ID of the image
      * @param actorId The ID of the user performing the action
-     * @returns A promise for an Image
+     * @returns An Image
      * @throws Error if image not found
      * @throws Error if not authorized
      */

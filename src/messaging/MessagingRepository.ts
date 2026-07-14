@@ -21,7 +21,7 @@ export class MessagingRepository {
     /**
      * Finds a chat by ID
      * @param chatId The ID of the chat
-     * @returns A promise for the Chat if found, else null
+     * @returns The Chat if found, else null
      */
     public async findChatById(chatId: string): Promise<Chat | null> {
         return await ChatModel.findOne({ _id: chatId }).lean().exec();
@@ -31,7 +31,7 @@ export class MessagingRepository {
      * Adds a member to a chat
      * @param chatId The ID of the chat
      * @param userId The ID of the user
-     * @returns A promise for an updated Chat if found, else null
+     * @returns An updated Chat if found, else null
      * @throws Error if chat not found
      */
     public async addMemberToChat(chatId: string, userId: string): Promise<Chat | null> {
@@ -46,7 +46,7 @@ export class MessagingRepository {
      * Removes a member from a chat
      * @param chatId The ID of the chat
      * @param userId The ID of the user
-     * @returns A promise for an updated Chat if found, else null
+     * @returns An updated Chat if found, else null
      * @throws Error if chat not found
      */
     public async removeMemberFromChat(chatId: string, userId: string): Promise<Chat | null> {
@@ -71,7 +71,7 @@ export class MessagingRepository {
      * Sends (creates) a message in a chat
      * @param chatId The ID of the chat
      * @param data The DTO for creating a message
-     * @returns A promise for the created message
+     * @returns The created message
      */
     public async sendMessage(chatId: string, data: SendMessageDto): Promise<Message> {
         return await MessageModel.create({
@@ -84,7 +84,7 @@ export class MessagingRepository {
      * Uploads an image to the server
      * @param messageId The ID of the associated message
      * @param data The DTO for uploading an image
-     * @returns A promise for the created image
+     * @returns The created image
      */
     public async uploadImage(messageId: string, data: UploadImageDto): Promise<Image> {
         return await ImageModel.create({
@@ -96,7 +96,7 @@ export class MessagingRepository {
     /**
      * Gets an image by ID
      * @param imageId The ID of the image
-     * @returns A promise for the image, or null if not found
+     * @returns The image, or null if not found
      */
     public async findImageById(imageId: string): Promise<Image | null> {
         return await ImageModel.findOne({ _id: imageId });
@@ -141,7 +141,7 @@ export class MessagingRepository {
     /**
      * Finds a message by ID
      * @param messageId The ID of the message
-     * @returns A promise for the Message if found, else null
+     * @returns The Message if found, else null
      */
     public async findMessageById(messageId: string): Promise<Message | null> {
         return await MessageModel.findOne({ _id: messageId });

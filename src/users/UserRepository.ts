@@ -7,7 +7,7 @@ export class UserRepository {
     /**
      * Creates a new user
      * @param data The user's information
-     * @returns A promise for the user
+     * @returns The user
      */
     public async create(data: CreateUserDto): Promise<User> {
         return await UserModel.create(data);
@@ -16,7 +16,7 @@ export class UserRepository {
     /**
      * Finds a user by ID
      * @param id The ID of the user
-     * @returns A promise for a user or null
+     * @returns A user or null
      */
     public async findById(id: string): Promise<User | null> {
         return await UserModel.findById(id).lean().exec();
@@ -25,7 +25,7 @@ export class UserRepository {
     /**
      * Finds a user by email
      * @param email The user's email
-     * @returns A promise for the user or null
+     * @returns The user or null
      */
     public async findByEmail(email: string): Promise<User | null> {
         return await UserModel.findOne({ email: email }).lean().exec();
@@ -34,7 +34,7 @@ export class UserRepository {
     /**
      * Checks whether there is a user with a given email
      * @param email The user's email
-     * @returns A promise for a boolean whether the user exists
+     * @returns A boolean whether the user exists
      */
     public async existsByEmail(email: string): Promise<boolean> {
         return (await UserModel.countDocuments({ email: email })) > 0;
@@ -44,7 +44,7 @@ export class UserRepository {
      * Updates a user's profile fields
      * @param id The ID of the target user
      * @param data The fields to update
-     * @returns A promise for the user, or null
+     * @returns The user, or null
      */
     public async updateProfile(id: string, data: UpdateProfileDto): Promise<User | null> {
         return await UserModel.findByIdAndUpdate(id, {
