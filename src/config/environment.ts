@@ -9,8 +9,9 @@ REQUIRED_ENVIRONMENT_VARIABLES.forEach(value => {
 
 export const VARIABLES = {
     env: process.env.NODE_ENV || "development",
-    jwtAccessSecret: process.env.JWT_ACCESS_SECRET,
-    jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
-    jwtAccessTokenLifetime: process.env.JWT_ACCESS_TOKEN_LIFETIME,
-    jwtRefreshTokenLifetime: process.env.JWT_REFRESH_TOKEN_LIFETIME,
+    // Force cast the required variables since the program will crash if they are not strings
+    jwtAccessSecret: process.env.JWT_ACCESS_SECRET as string,
+    jwtRefreshSecret: process.env.JWT_REFRESH_SECRET as string,
+    jwtAccessTokenLifetime: process.env.JWT_ACCESS_TOKEN_LIFETIME as string,
+    jwtRefreshTokenLifetime: process.env.JWT_REFRESH_TOKEN_LIFETIME as string,
 };
