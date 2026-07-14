@@ -33,11 +33,10 @@ describe("MessagingRepository", () => {
 
     const GENERIC_CHAT_CREATION_DTO = {
         title: "Hello",
-        owner: OID_1,
     };
 
     test("authorizes member-locked actions", async () => {
-        const chat = await repository.createChat(GENERIC_CHAT_CREATION_DTO);
+        const chat = await repository.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
         await repository.addMemberToChat(chat._id.toString(), OID_2.toString());
 
         expect(await authorization.authorizeAction(chat._id.toString(), OID_1.toString(), MessagingAction.GetChat)).toBe(true);
@@ -62,7 +61,7 @@ describe("MessagingRepository", () => {
     });
 
     test("authorizes owner-locked actions", async () => {
-        const chat = await repository.createChat(GENERIC_CHAT_CREATION_DTO);
+        const chat = await repository.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
         await repository.addMemberToChat(chat._id.toString(), OID_2.toString());
 
         expect(await authorization.authorizeAction(chat._id.toString(), OID_1.toString(), MessagingAction.AddMember)).toBe(true);

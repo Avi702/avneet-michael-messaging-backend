@@ -13,10 +13,11 @@ export class MessagingService {
 
     /**
      * Creates a new chat
+     * @param actorId The ID of the user performing the action
      * @param data The DTO for creating a chat
      */
-    public async createChat(data: CreateChatDto): Promise<Chat> {
-        return await this.messages.createChat(data);
+    public async createChat(actorId: string, data: CreateChatDto): Promise<Chat> {
+        return await this.messages.createChat(actorId, data);
     }
 
     /**

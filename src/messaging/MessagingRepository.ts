@@ -12,10 +12,11 @@ import { ImageModel } from "./Image.model";
 export class MessagingRepository {
     /**
      * Creates a new chat
+     * @param ownerId The ID of the owner of the chat
      * @param data The DTO for creating a chat
      */
-    public async createChat(data: CreateChatDto): Promise<Chat> {
-        return await ChatModel.create(data);
+    public async createChat(ownerId: string, data: CreateChatDto): Promise<Chat> {
+        return await ChatModel.create({ ...data, owner: ownerId });
     }
 
     /**

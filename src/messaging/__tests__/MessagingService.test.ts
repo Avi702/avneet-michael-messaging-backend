@@ -34,18 +34,17 @@ describe("MessagingRepository", () => {
 
     const GENERIC_CHAT_CREATION_DTO = {
         title: "Hello",
-        owner: OID_1,
     };
 
     test("creates a new chat", async () => {
-        const chat = await service.createChat(GENERIC_CHAT_CREATION_DTO);
+        const chat = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
         expect(chat.owner).toStrictEqual(OID_1);
         expect(chat.title).toBe("Hello");
         expect(chat.members).toEqual([]);
     });
 
     test("gets a chat", async () => {
-        const chat = await service.createChat(GENERIC_CHAT_CREATION_DTO);
+        const chat = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
         const found = await service.getChat(chat._id.toString(), OID_1.toString());
         expect(found?._id.toString()).toStrictEqual(chat._id.toString());
         // chat does not exist
@@ -55,14 +54,14 @@ describe("MessagingRepository", () => {
     });
 
     test("adds a member to a chat", async () => {
-        const chat = await service.createChat(GENERIC_CHAT_CREATION_DTO);
+        const chat = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
         const response = await service.addMemberToChat(chat._id.toString(), OID_1.toString(), OID_2.toString());
         expect(response).toBe(true);
         await expect(service.addMemberToChat(chat._id.toString(), OID_2.toString(), OID_3.toString())).rejects.toThrow();
     });
 
     test("removes a member from a chat", async () => {
-        const chat = await service.createChat(GENERIC_CHAT_CREATION_DTO);
+        const chat = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
         const response1 = await service.addMemberToChat(chat._id.toString(), OID_1.toString(), OID_2.toString());
         expect(response1).toBe(true);
         // no authorization case
@@ -76,7 +75,7 @@ describe("MessagingRepository", () => {
     });
 
     test("updates chat information", async () => {
-        const chat = await service.createChat(GENERIC_CHAT_CREATION_DTO);
+        const chat = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
         // update
         await service.updateChatInformation(chat._id.toString(), chat.owner.toString(), {
             title: "Test"
@@ -93,7 +92,7 @@ describe("MessagingRepository", () => {
     });
 
     test("sends a message", async () => {
-        const chat = await service.createChat(GENERIC_CHAT_CREATION_DTO);
+        const chat = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
         const message = await service.sendMessage(chat._id.toString(), OID_1.toString(), {
             sender: OID_1,
             textContent: "Hello",
@@ -107,7 +106,7 @@ describe("MessagingRepository", () => {
     });
 
     test("uploads an image", async () => {
-        const chat = await service.createChat(GENERIC_CHAT_CREATION_DTO);
+        const chat = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
         const message = await service.sendMessage(chat._id.toString(), OID_1.toString(), {
             sender: OID_1,
             textContent: "Hello",
@@ -124,7 +123,7 @@ describe("MessagingRepository", () => {
     });
 
     test("gets an image", async () => {
-        const chat = await service.createChat(GENERIC_CHAT_CREATION_DTO);
+        const chat = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
         const message = await service.sendMessage(chat._id.toString(), OID_1.toString(), {
             sender: OID_1,
             textContent: "Hello",
@@ -141,7 +140,7 @@ describe("MessagingRepository", () => {
     });
 
     test("gets paginated messages", async () => {
-        const chat = await service.createChat(GENERIC_CHAT_CREATION_DTO);
+        const chat = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
         for (let i = 0; i < 100; i++) {
             await service.sendMessage(chat._id.toString(), OID_1.toString(), {
                 sender: OID_1,

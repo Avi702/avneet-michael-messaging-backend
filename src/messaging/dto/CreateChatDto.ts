@@ -1,3 +1,3 @@
 import { Chat } from "../Chat.types";
 
-export type CreateChatDto = Pick<Chat, "title" | "owner">;
+export type CreateChatDto = Pick<Chat, "title">;
