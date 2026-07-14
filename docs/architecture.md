@@ -31,3 +31,32 @@ For information about testing, see [testing.md](testing.md).
 The messaging module contains all features related to messaging. As a database module, it is almost identical in structure to the `users` module, so detailed information is omitted.
 
 The main difference between `messaging` and `users` is that `messaging` contains multiple different Monogoose collections corresponding to `Message`, `Image`, and `Chat`. Since these cannot exist independently, their business logic is heavily intertwined and collected under one module.
+
+### Authentication
+
+The authentication module contains all features related to authentication, including some user creation logic. It is a unique module that deals mostly with external libraries (`bcrypt` and `jsonwebtoken`) but also with the `UserRepository` and the `UserService`.
+
+The authentication module does not directly interface with Mongoose. Instead, it interfaces with the repositories for the user models it interacts with.
+
+Due to the necessity of password hashing to create a new user or update a password, these functionalities are provided through the authentication module and related controllers.
+
+#### Organization
+- `PasswordService.ts` - `bcrypt` wrapper that provides password hashing and verification
+- `JwtService.ts` - `jsonwebtoken` wrapper that provides generation and verification of JWTs
+- `AuthenticationService.ts` - broad functions for the authentication module, including logins, refresh, registration, and updating passwords
+
+### API
+
+The API module contains all of the HTTP request endpoints.
+
+It provides access to persistent storage (including group creation and image uploading) and authentication for clients.
+
+#### Organization
+- `controllers/` - business logic for API routes; connects HTTP requests to the associated services
+- `middleware/` - filters and aggregators for information needed to process HTTP requests, including authentication
+- `middleware/validators/` - HTTP request body field format, data type, and presence verification
+- `routes/` - routing classes for connecting the Express application to the controllers and endpoint parsing
+
+### Configuration
+
+The configuration (config) module contains some configuration wrappers. It pulls from the `.env` file and contains some related application configuration.
