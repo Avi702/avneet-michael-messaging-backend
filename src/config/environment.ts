@@ -1,11 +1,14 @@
 import "dotenv/config";
 import { REQUIRED_ENVIRONMENT_VARIABLES } from "./configuration";
 
-REQUIRED_ENVIRONMENT_VARIABLES.forEach(value => {
-    if (!process.env[value]) {
-        throw new Error(`Missing required environment variable ${value}`);
-    }
-});
+// Only crash if we are not mocking the variables
+if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "production") {
+    REQUIRED_ENVIRONMENT_VARIABLES.forEach(value => {
+        if (!process.env[value]) {
+            throw new Error(`Missing required environment variable ${value}`);
+        }
+    });
+}
 
 export const VARIABLES = {
     env: process.env.NODE_ENV || "development",
