@@ -8,7 +8,7 @@ import { PasswordService } from "./PasswordService";
 export interface LoginResult {
     accessToken: string;
     refreshToken: string;
-    user: User;
+    user: PublicUser;
 }
 
 export interface RefreshResult {
@@ -53,7 +53,7 @@ export class AuthenticationService {
         return {
             accessToken: this.jwtService.generateAccessToken(payload),
             refreshToken: this.jwtService.generateRefreshToken(payload),
-            user: user,
+            user: this.users.publicizeUser(user),
         };
     }
 
