@@ -11,4 +11,6 @@ export const VARIABLES = {
     env: process.env.NODE_ENV || "development",
     jwtAccessSecret: process.env.JWT_ACCESS_SECRET,
     jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
+    jwtAccessTokenLifetime: process.env.JWT_ACCESS_TOKEN_LIFETIME,
+    jwtRefreshTokenLifetime: process.env.JWT_REFRESH_TOKEN_LIFETIME,
 };
