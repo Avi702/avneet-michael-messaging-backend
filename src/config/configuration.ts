@@ -4,4 +4,5 @@ export const REQUIRED_ENVIRONMENT_VARIABLES: string[] = [
     "JWT_REFRESH_SECRET",
     "JWT_ACCESS_TOKEN_LIFETIME", // format: XXm (minutes)
     "JWT_REFRESH_TOKEN_LIFETIME", // format: XXd (days)
+    "MONGODB_URI", // uri to MongoDB server, unnecessary if NODE_ENV=testing, which runs a mongodb server in memory
 ];

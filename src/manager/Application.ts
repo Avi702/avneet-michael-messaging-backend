@@ -32,11 +32,8 @@ export class Application {
     private httpServer: NodeHttpServer | undefined;
 
     public async initializeDatabase() {
-        if (VARIABLES.env === "production") {
-            throw new Error(`Database configuration for production not yet implemented`);
-        }
-        else if (VARIABLES.env === "development") {
-            throw new Error(`Database configuration for development not yet implemented`);
+        if (VARIABLES.env === "production" || VARIABLES.env === "development") {
+            await mongoose.connect(VARIABLES.mongoDbUri);
         }
         else {
             const mongo = await MongoMemoryServer.create();
