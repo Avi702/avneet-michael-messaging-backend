@@ -36,4 +36,8 @@ export class ExpressApi {
 
         this.app.use(errorHandler());
     }
+
+    public getApp(): express.Express {
+        return this.app;
+    }
 }
