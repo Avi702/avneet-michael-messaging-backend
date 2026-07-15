@@ -71,13 +71,15 @@ export class MessagingRepository {
     /**
      * Sends (creates) a message in a chat
      * @param chatId The ID of the chat
+     * @param senderId The ID of the user sending the message
      * @param data The DTO for creating a message
      * @returns The created message
      */
-    public async sendMessage(chatId: string, data: SendMessageDto): Promise<Message> {
+    public async sendMessage(chatId: string, senderId: string, data: SendMessageDto): Promise<Message> {
         return await MessageModel.create({
             ...data,
-            chat: chatId
+            chat: chatId,
+            sender: senderId
         });
     }
 

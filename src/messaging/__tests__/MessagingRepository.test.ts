@@ -74,8 +74,7 @@ describe("MessagingRepository", () => {
 
     test("sends a message", async () => {
         const chat = await repository.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
-        const message = await repository.sendMessage(chat._id.toString(), {
-            sender: OID_1,
+        const message = await repository.sendMessage(chat._id.toString(), OID_1.toString(), {
             textContent: "Hello world",
         });
         expect(message).not.toBe(null);
@@ -85,8 +84,7 @@ describe("MessagingRepository", () => {
 
     test("uploads an image", async () => {
         const chat = await repository.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
-        const message = await repository.sendMessage(chat._id.toString(), {
-            sender: OID_1,
+        const message = await repository.sendMessage(chat._id.toString(), OID_1.toString(), {
             textContent: "Hello world",
         });
         const image = await repository.uploadImage(message._id.toString(), {
@@ -99,8 +97,7 @@ describe("MessagingRepository", () => {
 
     test("finds an image", async () => {
         const chat = await repository.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
-        const message = await repository.sendMessage(chat._id.toString(), {
-            sender: OID_1,
+        const message = await repository.sendMessage(chat._id.toString(), OID_1.toString(), {
             textContent: "Hello world",
         });
         const image = await repository.uploadImage(message._id.toString(), {
@@ -115,8 +112,7 @@ describe("MessagingRepository", () => {
     test("gets paginated messages", async () => {
         const chat = await repository.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
         for (let i = 0; i < 100; i++) {
-            await repository.sendMessage(chat._id.toString(), {
-                sender: OID_1,
+            await repository.sendMessage(chat._id.toString(), OID_1.toString(), {
                 textContent: `Hello${i}`
             });
         }
@@ -132,8 +128,7 @@ describe("MessagingRepository", () => {
 
     test("finds a message by id", async () => {
         const chat = await repository.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
-        const message = await repository.sendMessage(chat._id.toString(), {
-            sender: OID_1,
+        const message = await repository.sendMessage(chat._id.toString(), OID_1.toString(), {
             textContent: "Hello world",
         });
         const found = await repository.findMessageById(message._id.toString());

@@ -97,7 +97,7 @@ export class MessagingService {
         if (!(await this.authorization.authorizeAction(chatId, actorId, MessagingAction.SendMessage))) {
             throw new Error(`Action not authorized`);
         }
-        return await this.messages.sendMessage(chatId, data);
+        return await this.messages.sendMessage(chatId, actorId, data);
     }
 
     /**

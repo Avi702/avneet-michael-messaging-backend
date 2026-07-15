@@ -94,21 +94,19 @@ describe("MessagingRepository", () => {
     test("sends a message", async () => {
         const chat = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
         const message = await service.sendMessage(chat._id.toString(), OID_1.toString(), {
-            sender: OID_1,
             textContent: "Hello",
         });
         expect(message.chat.toString()).toBe(chat._id.toString());
         expect(message.textContent).toBe("Hello");
         // chat does not exist
-        await expect(service.sendMessage(OID_1.toString(), OID_1.toString(), { sender: OID_1, textContent: "" })).rejects.toThrow();
+        await expect(service.sendMessage(OID_1.toString(), OID_1.toString(), { textContent: "" })).rejects.toThrow();
         // user unauthorized
-        await expect(service.sendMessage(chat._id.toString(), OID_3.toString(), { sender: OID_1, textContent: "" })).rejects.toThrow();
+        await expect(service.sendMessage(chat._id.toString(), OID_3.toString(), { textContent: "" })).rejects.toThrow();
     });
 
     test("uploads an image", async () => {
         const chat = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
         const message = await service.sendMessage(chat._id.toString(), OID_1.toString(), {
-            sender: OID_1,
             textContent: "Hello",
         });
         const image = await service.uploadImage(message._id.toString(), OID_1.toString(), {
@@ -125,7 +123,6 @@ describe("MessagingRepository", () => {
     test("gets an image", async () => {
         const chat = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
         const message = await service.sendMessage(chat._id.toString(), OID_1.toString(), {
-            sender: OID_1,
             textContent: "Hello",
         });
         const image = await service.uploadImage(message._id.toString(), OID_1.toString(), {
@@ -143,7 +140,6 @@ describe("MessagingRepository", () => {
         const chat = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
         for (let i = 0; i < 100; i++) {
             await service.sendMessage(chat._id.toString(), OID_1.toString(), {
-                sender: OID_1,
                 textContent: `Hello${i}`
             });
         }
