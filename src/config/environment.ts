@@ -17,4 +17,5 @@ export const VARIABLES = {
     jwtRefreshSecret: process.env.JWT_REFRESH_SECRET as string,
     jwtAccessTokenLifetime: process.env.JWT_ACCESS_TOKEN_LIFETIME as string,
     jwtRefreshTokenLifetime: process.env.JWT_REFRESH_TOKEN_LIFETIME as string,
+    port: process.env.PORT as string ?? 3000, // Default to port 3000 for listening
 };
