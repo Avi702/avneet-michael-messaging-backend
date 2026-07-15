@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { zObjectId } from "./validate";
+import { zObjectId } from "../../../shared/validators/zObjectId";
 
 export const createChatSchema = z.object({
     title: z.string().min(3).max(64),

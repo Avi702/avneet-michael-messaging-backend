@@ -1,5 +1,4 @@
 import { RequestHandler } from "express";
-import mongoose from "mongoose";
 import { z } from "zod";
 
 export function validate(schema: z.ZodType): RequestHandler {
@@ -17,8 +16,3 @@ export function validate(schema: z.ZodType): RequestHandler {
         next();
     };
 }
-
-export const zObjectId = z.string().refine(
-    value => mongoose.Types.ObjectId.isValid(value),
-    { message: "Invalid MongoDB object" },
-);
