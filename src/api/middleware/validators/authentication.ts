@@ -19,3 +19,7 @@ export const authenticateSchema = z.object({
 export const refreshSchema = z.object({
     refreshToken: z.jwt(),
 });
+
+export const updatePasswordSchema = z.object({
+    password: z.string().min(8).max(64),
+});

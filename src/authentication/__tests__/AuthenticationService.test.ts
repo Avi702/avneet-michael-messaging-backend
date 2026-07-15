@@ -93,4 +93,16 @@ describe("AuthenticationService", () => {
         // rejection case: invalid token
         await expect(authenticationService.refresh("123")).rejects.toThrow();
     });
+
+    test("resets a password", async () => {
+        const user = await authenticationService.register(GENERIC_USER_CREATION_DTO);
+        const loggedIn = await authenticationService.login(GENERIC_USER_CREATION_DTO.email, GENERIC_USER_CREATION_DTO.password);
+        expect(loggedIn.user._id.toString()).toBe(user._id.toString());
+        await authenticationService.updatePassword(user._id.toString(), "helloworld");
+        // expect old password to fail
+        await expect(authenticationService.login(GENERIC_USER_CREATION_DTO.email, GENERIC_USER_CREATION_DTO.password)).rejects.toThrow();
+        // expect new password to succeed
+        const newLoggedIn = await authenticationService.login(GENERIC_USER_CREATION_DTO.email, "helloworld");
+        expect(newLoggedIn.user._id.toString()).toBe(user._id.toString());
+    });
 });

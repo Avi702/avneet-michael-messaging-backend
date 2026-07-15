@@ -109,4 +109,15 @@ export class AuthenticationService {
             refreshToken: this.jwtService.generateRefreshToken({ sub: user._id.toString() }),
         };
     }
+
+    /**
+     * Updates a user's password
+     * @param actorId The ID of the user resetting their password
+     * @param password The new password
+     * @returns Once the password has been updated
+     */
+    public async updatePassword(actorId: string, password: string): Promise<void> {
+        const hash = await this.passwordService.hash(password);
+        await this.users.updatePassword(actorId, hash);
+    }
 }

@@ -28,4 +28,12 @@ export class AuthenticationController {
         const result = await this.authenticationService.refresh(refreshToken);
         res.json(result);
     });
+
+    public updatePassword = asyncHandler(async (req: Request, res: Response) => {
+        const { password } = req.body;
+        const result = await this.authenticationService.updatePassword(req.actorId, password);
+        res.json({
+            success: true
+        });
+    });
 }

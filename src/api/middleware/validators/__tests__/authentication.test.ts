@@ -1,5 +1,5 @@
 import { beforeAll, afterAll, describe, beforeEach, test, expect } from "@jest/globals";
-import { authenticateSchema, loginSchema, refreshSchema, registerSchema } from "../authentication";
+import { authenticateSchema, loginSchema, refreshSchema, registerSchema, updatePasswordSchema } from "../authentication";
 
 describe("authentication validator", () => {
     describe("loginSchema", () => {
@@ -218,5 +218,33 @@ describe("authentication validator", () => {
                 refreshToken: "catcat-QV30",
             }).success).toBe(false);
         })
+    });
+
+    describe("updatePasswordSchema", () => {
+        test("accepts valid input", () => {
+            expect(updatePasswordSchema.safeParse({
+                password: "helloworld",
+            }).success).toBe(true);
+        });
+
+        test("rejects wrong data type", () => {
+            expect(updatePasswordSchema.safeParse({
+                password: 3,
+            }).success).toBe(false);
+        });
+
+        test("rejects missing field", () => {
+            expect(updatePasswordSchema.safeParse({
+            }).success).toBe(false);
+        });
+
+        test("rejects bad input", () => {
+            expect(updatePasswordSchema.safeParse({
+                password: "a",
+            }).success).toBe(false);
+            expect(updatePasswordSchema.safeParse({
+                password: "helloworldhelloworldhelloworldhelloworldhelloworldhelloworldhelloworldhelloworldhelloworldhelloworldhelloworld",
+            }).success).toBe(false);
+        });
     });
 });
