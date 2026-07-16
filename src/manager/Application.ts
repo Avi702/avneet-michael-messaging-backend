@@ -26,74 +26,43 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 
 export class Application {
-    // Would be regular typed but must initialize database before rest of application
-    private expressApi: ExpressApi | undefined;
-    private liveServer: LiveServer | undefined;
-    private httpServer: NodeHttpServer | undefined;
+    public constructor(
+        private readonly expressApi: ExpressApi,
+        private readonly liveServer: LiveServer,
+        private readonly httpServer: NodeHttpServer,
+    ) {}
 
-    public async initializeDatabase() {
-        if (VARIABLES.env === "production" || VARIABLES.env === "development") {
-            await mongoose.connect(VARIABLES.mongoDbUri);
-        }
-        else {
-            const mongo = await MongoMemoryServer.create();
-            await mongoose.connect(mongo.getUri());
-        }
-    }
-
-    public initializeServers() {
-        // >>> Database
-        // Users
-        const userRepository = new UserRepository();
-        const userAuthorizationService = new UserAuthorizationService(userRepository);
-        const userService = new UserService(userRepository, userAuthorizationService);
-        // Authentication
-        const passwordService = new PasswordService();
-        const jwtService = new JwtService();
-        const authenticationService = new AuthenticationService(userRepository, userService, passwordService, jwtService);
-        // Messaging
-        const messagingRepository = new MessagingRepository();
-        const messagingAuthorizationService = new MessagingAuthorizationService(messagingRepository);
-        const messagingService = new MessagingService(messagingRepository, messagingAuthorizationService);
-
-        // >>> API helpers
-        // Users
-        const userController = new UserController(userService);
-        const userRoutes = new UserRoutes(userController, authenticationService);
-        // Authentication
-        const authenticationController = new AuthenticationController(authenticationService);
-        const authenticationRoutes = new AuthenticationRoutes(authenticationController, authenticationService);
-        // Messaging
-        const messagingController = new MessagingController(messagingService);
-        const messagingRoutes = new MessagingRoutes(messagingController, authenticationService);
-
-        // Create the Express server
-        this.expressApi = new ExpressApi(authenticationRoutes, userRoutes, messagingRoutes);
-
-        // >>> Live helpers
-        const connectionManager = new ConnectionManager();
-        const chatHandler = new ChatHandler(messagingService);
-        const messageHandler = new MessageHandler(messagingService);
-        const connectionHandler = new ConnectionHandler(connectionManager, [
-            chatHandler,
-            messageHandler
-        ]);
-
-        // Create the HTTP server
-        this.httpServer = createServer(this.expressApi.getApp());
-
-        // Create the Socket.IO server
-        this.liveServer = new LiveServer(this.httpServer, authenticationService, connectionHandler);
-    }
-
-    public start() {
-        // Start the HTTP server
-        const port = VARIABLES.port;
+    /**
+     * Starts the HTTP server
+     * @param port The port to listen on
+     * @returns The port, once listening
+     */
+    public async start(port: number): Promise<number> {
         if (!this.httpServer) {
             throw new Error("Must await initializeDatabase and initializeServers before calling start!");
         }
-        this.httpServer.listen(port, () => {
-            console.log(`Server listening on port ${port}!`);
+        return new Promise<number>((resolve, reject) => {
+            this.httpServer.once("error", reject);
+
+            this.httpServer.listen(port, () => {
+                this.httpServer.off("error", reject);
+
+                const address = this.httpServer.address();
+
+                if (!address || typeof address === "string") {
+                    reject(new Error("Could not determine port"));
+                    return;
+                }
+
+                resolve(address.port);
+            });
         });
+    }
+
+    /**
+     * Stops the HTTP server
+     */
+    public stop() {
+        this.httpServer.close();
     }
 }

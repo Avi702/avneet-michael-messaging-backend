@@ -24,5 +24,5 @@ export const VARIABLES = {
     mongoDbUri: process.env.MONGODB_URI as string,
 
     // Server configuration
-    port: process.env.PORT as string ?? 3000, // Default to port 3000 for listening
+    port: parseInt(process.env.PORT as string) ?? 3000, // Default to port 3000 for listening
 };
