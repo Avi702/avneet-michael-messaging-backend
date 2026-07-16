@@ -111,11 +111,12 @@ export class MessagingService {
      * @throws Error if not authorized
      */
     public async uploadImage(messageId: string, actorId: string, data: UploadImageDto): Promise<Image> {
-        const message = await this.messages.findMessageById(messageId);
-        if (!message) {
-            throw new MessageNotFoundError(messageId);
-        }
-        if (!(await this.authorization.authorizeAction(message.chat.toString(), actorId, MessagingAction.UploadImage))) {
+        // No need to check, authorizeAction has to check and will throw MessageNotFoundError
+        // const message = await this.messages.findMessageById(messageId);
+        // if (!message) {
+        //     throw new MessageNotFoundError(messageId);
+        // }
+        if (!(await this.authorization.authorizeAction(messageId, actorId, MessagingAction.UploadImage))) {
             throw new UnauthorizedError(`User is not permitted to perform this action`);
         }
         return await this.messages.uploadImage(messageId, data);

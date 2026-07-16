@@ -1,3 +1,4 @@
+import { MessageNotFoundError } from "../shared/errors/messaging";
 import { MessagingRepository } from "./MessagingRepository";
 
 export const MessagingAction = {
@@ -28,7 +29,6 @@ export class MessagingAuthorizationService {
         if (
             action === MessagingAction.GetChat ||
             action === MessagingAction.SendMessage ||
-            action === MessagingAction.UploadImage ||
             action === MessagingAction.GetImage ||
             action === MessagingAction.GetMessages
         ) {
@@ -44,6 +44,13 @@ export class MessagingAuthorizationService {
                 throw new Error(`Chat ${resourceId} does not exist`);
             }
             return chat.owner.toString() === actorId;
+        }
+        if (action === MessagingAction.UploadImage) {
+            const message = await this.messages.findMessageById(resourceId);
+            if (!message) {
+                throw new MessageNotFoundError(resourceId);
+            }
+            return message.sender.toString() === actorId;
         }
         throw new Error(`Action is not valid`);
     }

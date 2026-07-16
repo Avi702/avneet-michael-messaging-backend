@@ -47,10 +47,6 @@ describe("MessagingRepository", () => {
         expect(await authorization.authorizeAction(chat._id.toString(), OID_2.toString(), MessagingAction.SendMessage)).toBe(true);
         expect(await authorization.authorizeAction(chat._id.toString(), OID_3.toString(), MessagingAction.SendMessage)).toBe(false);
 
-        expect(await authorization.authorizeAction(chat._id.toString(), OID_1.toString(), MessagingAction.UploadImage)).toBe(true);
-        expect(await authorization.authorizeAction(chat._id.toString(), OID_2.toString(), MessagingAction.UploadImage)).toBe(true);
-        expect(await authorization.authorizeAction(chat._id.toString(), OID_3.toString(), MessagingAction.UploadImage)).toBe(false);
-
         expect(await authorization.authorizeAction(chat._id.toString(), OID_1.toString(), MessagingAction.GetImage)).toBe(true);
         expect(await authorization.authorizeAction(chat._id.toString(), OID_2.toString(), MessagingAction.GetImage)).toBe(true);
         expect(await authorization.authorizeAction(chat._id.toString(), OID_3.toString(), MessagingAction.GetImage)).toBe(false);
@@ -63,6 +59,9 @@ describe("MessagingRepository", () => {
     test("authorizes owner-locked actions", async () => {
         const chat = await repository.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
         await repository.addMemberToChat(chat._id.toString(), OID_2.toString());
+        const message = await repository.sendMessage(chat._id.toString(), OID_2.toString(), {
+            textContent: "hello"
+        });
 
         expect(await authorization.authorizeAction(chat._id.toString(), OID_1.toString(), MessagingAction.AddMember)).toBe(true);
         expect(await authorization.authorizeAction(chat._id.toString(), OID_2.toString(), MessagingAction.AddMember)).toBe(false);
@@ -75,5 +74,9 @@ describe("MessagingRepository", () => {
         expect(await authorization.authorizeAction(chat._id.toString(), OID_1.toString(), MessagingAction.UpdateInformation)).toBe(true);
         expect(await authorization.authorizeAction(chat._id.toString(), OID_2.toString(), MessagingAction.UpdateInformation)).toBe(false);
         expect(await authorization.authorizeAction(chat._id.toString(), OID_3.toString(), MessagingAction.UpdateInformation)).toBe(false);
+
+        expect(await authorization.authorizeAction(message._id.toString(), OID_1.toString(), MessagingAction.UploadImage)).toBe(false);
+        expect(await authorization.authorizeAction(message._id.toString(), OID_2.toString(), MessagingAction.UploadImage)).toBe(true);
+        expect(await authorization.authorizeAction(message._id.toString(), OID_3.toString(), MessagingAction.UploadImage)).toBe(false);
     });
 });
