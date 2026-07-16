@@ -1,5 +1,5 @@
 import { UnauthorizedError } from "../shared/errors/common";
-import { UserAlreadyExistsError, UserNotFoundError } from "../shared/errors/users";
+import { UserAlreadyExistsError, UserNotFoundError, UserNotOldEnoughError } from "../shared/errors/users";
 import type { CreateUserDto } from "./dto/CreateUserDto";
 import type { UpdateProfileDto } from "./dto/UpdateProfileDto";
 import type { PublicUser, User } from "./User.types";
@@ -72,7 +72,7 @@ export class UserService {
      */
     public async createUser(data: CreateUserDto): Promise<PublicUser> {
         if (!this.birthDateIsValid(data.birthDate)) {
-            throw new Error(`User is not old enough! Birth date ${data.birthDate} is not at least ${UserService.MINIMUM_AGE} years ago`);
+            throw new UserNotOldEnoughError();
         }
         const isExistingUser = await this.users.existsByEmail(data.email);
         if (isExistingUser) {
