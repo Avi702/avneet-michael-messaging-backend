@@ -4,6 +4,8 @@ The backend for our messaging application uses TypeScript, NodeJS, Mongoose, Exp
 
 The application is separated into various modules by domain. Each module has individual testing.
 
+For more information about select modules, see the [API specification](api.md) and [live specification](sockets.md).
+
 ## Modules
 
 Modules generally either interface with the database, network, or other modules, but not more than one.
@@ -57,6 +59,38 @@ It provides access to persistent storage (including group creation and image upl
 - `middleware/validators/` - HTTP request body field format, data type, and presence verification
 - `routes/` - routing classes for connecting the Express application to the controllers and endpoint parsing
 
+More information is available in [the specifciation](api.md).
+
 ### Configuration
 
 The configuration (config) module contains some configuration wrappers. It pulls from the `.env` file and contains some related application configuration.
+
+### Live
+
+The live module contains all of the Socket.IO API calls and handlers.
+
+It allows clients to send and receive messages and subscribe to open chat windows.
+
+#### Organization
+- `handlers/` - event handlers serving various functions, separated by module
+- `middleware/` - message validators and authentication for Socket.IO
+- `ConnectionHandler.ts` - registers event listeners on a new client
+- `ConnectionManager.ts` - utility client tracking; mostly for future use
+- `LiveServer.ts` - the server object for the Socket.IO API
+
+More information is available in [the specifciation](sockets.md).
+
+### Shared
+
+The shared module contains shared errors and validators.
+
+### Manager
+
+The manager module is the composition root for the application. It creates all services, repositories, and providers and compiles them into a single `Manager`, which can be easily called and separated for testing.
+
+#### Organization
+- `Application.ts` - lifecycle manager for the servers
+- `ApplicationBuilder.ts` - creates an `Application`
+- `Database.ts` - connects to the database
+- `Manager.ts` - composes the other components in the manager module
+
