@@ -18,11 +18,11 @@ The auth column is checked (✅) if the user must be logged in (valid `accessTok
 
 ### Errors
 
-If the request body does not match the given pattern, the server will return a `BadRequestError` (status `400`, code `BAD_REQUEST`).
+If the request body does not match the given pattern, the server will return a `BadRequestError` (status `400`, code `BAD_REQUEST`). This error is not documented in each route's specification.
 
-If the request is not authenticated but should be, the server will return an `UnauthorizedError` (status `401`, code `UNAUTHORIZED` or `INVALID_TOKEN`). If the client should receive `INVALID_TOKEN`, the client should refresh if possible using `refresh`, or log in again using `login`.
+If the request is not authenticated but should be, the server will return an `UnauthorizedError` (status `401`, code `UNAUTHORIZED` or `INVALID_TOKEN`). If the client should receive `INVALID_TOKEN`, the client should refresh if possible using `refresh`, or log in again using `login`. This error is not documented in each route's specification.
 
-If the request is not authorized, i.e., the user is logged in correctly but does not have permission to use the endpoint in the way specified, the server will return a generic `UnauthorizedError` (status `401`, code `UNAUTHORIZED`). This is intentional business logic and cannot be circumvented.
+If the request is not authorized, i.e., the user is logged in correctly but does not have permission to use the endpoint in the way specified, the server will return a generic `UnauthorizedError` (status `401`, code `UNAUTHORIZED`). This is intentional business logic and cannot be circumvented. This error is not documented in each route's specification.
 
 The format of errors returned by the server is:
 ```js
@@ -183,4 +183,64 @@ If successful:
 }
 ```
 There should be no failures for this route, unless the user is not authenticated.
+
+
+
+##  Users
+
+Users routes allow users to update their profiles and fetch information about other user accounts.
+
+Base URL: `/api/v1/users`
+
+### Routes
+| URL | Purpose | Auth |
+| --- | --- | --- |
+| getUser | Fetches the `PublicUser` information for a user | ✅ |
+| updateProfile | Updates a user's profile information | ✅ |
+
+### Get User 🔒
+
+#### Body
+```js
+{
+    userId: string
+}
+```
+- User ID must be a valid database ID
+
+#### Responses
+If successful:
+```js
+{
+    // see src/user/User.types.ts for more information; this is a PublicUser
+    _id: string,
+    createdAt: Date,
+    displayName: string,
+    lastOnline: Date,
+    isOnline: boolean
+}
+```
+Failures may return:
+| Error | Status | Code | Reason |
+| --- | --- | --- | --- |
+| UserNotFound | 404 | USER_NOT_FOUND | The user account with that email was not found |
+
+### Update Profile 🔒
+
+#### Body
+```js
+{
+    displayName: string
+}
+```
+- Display name must be between 3 and 64 characters (inclusive).
+
+#### Responses
+If successful:
+```js
+{
+    success: true
+}
+```
+There should be no additional failures for this route unless the user is not logged in.
 
