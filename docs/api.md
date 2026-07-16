@@ -55,6 +55,8 @@ Base URL: `/api/v1/authentication`
 
 ### Login
 
+Endpoint: `POST /api/v1/authentication/login`
+
 #### Body
 ```js
 {
@@ -81,6 +83,8 @@ Failures may return:
 | PasswordIncorrect | 401 | PASSWORD_INCORRECT | The password supplied was incorrect |
 
 ### Register
+
+Endpoint: `POST /api/v1/authentication/register`
 
 #### Body
 ```js
@@ -117,6 +121,8 @@ Failures may return:
 
 ### Authenticate
 
+Endpoint: `POST /api/v1/authentication/authenticate`
+
 #### Body
 ```js
 {
@@ -145,6 +151,8 @@ Failures may return:
 
 ### Refresh
 
+Endpoint: `POST /api/v1/authentication/refresh`
+
 #### Body
 ```js
 {
@@ -168,6 +176,8 @@ Failures may return:
 | UserNotFound | 404 | USER_NOT_FOUND | User with ID specified by token not found |
 
 ### Update Password 🔒
+
+Endpoint: `POST /api/v1/authentication/updatePassword`
 
 #### Body
 ```js
@@ -202,6 +212,8 @@ Base URL: `/api/v1/users`
 
 ### Get User 🔒
 
+Endpoint: `POST /api/v1/users/getUser`
+
 #### Body
 ```js
 {
@@ -228,6 +240,8 @@ Failures may return:
 | UserNotFound | 404 | USER_NOT_FOUND | The user account with that email was not found |
 
 ### Update Profile 🔒
+
+Endpoint: `POST /api/v1/users/updateProfile`
 
 #### Body
 ```js
