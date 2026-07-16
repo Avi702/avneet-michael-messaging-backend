@@ -83,19 +83,18 @@ export class UserService {
 
     /**
      * Updates a user's profile
-     * @param userId The ID of the user being updated
      * @param actorId The ID of the user doing the updating
      * @param data The DTO for updating a profile
      * @throws Error if user does not exist
      * @throws Error if action not authorized
      */
-    public async updateProfile(userId: string, actorId: string, data: UpdateProfileDto): Promise<void> {
-        if (!(await this.authorization.authorizeAction(userId, actorId, UserAction.Update))) {
+    public async updateProfile(actorId: string, data: UpdateProfileDto): Promise<void> {
+        if (!(await this.authorization.authorizeAction(actorId, actorId, UserAction.Update))) {
             throw new UnauthorizedError(`User is not permitted to perform this action`);
         }
-        const user = await this.users.updateProfile(userId, data);
+        const user = await this.users.updateProfile(actorId, data);
         if (!user) {
-            throw new UserNotFoundError(userId);
+            throw new UserNotFoundError(actorId);
         }
     }
 }

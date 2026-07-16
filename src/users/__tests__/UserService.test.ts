@@ -81,7 +81,7 @@ describe("UserService", () => {
         // Create the user
         const user = await service.createUser(GENERIC_USER_CREATION_DTO);
         // Update the user's profile
-        await service.updateProfile(user._id.toString(), user._id.toString(), {
+        await service.updateProfile(user._id.toString(),  {
             displayName: "Bob Doe",
         });
         // Get the user again
