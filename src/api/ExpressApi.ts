@@ -8,6 +8,7 @@ import { UserRoutes } from "./routes/UserRoutes";
 import { notFound } from "./middleware/notFound";
 import { errorHandler } from "./middleware/errorHandler";
 import { MessagingRoutes } from "./routes/MessagingRoutes";
+import { HealthRoutes } from "./routes/HealthRoutes";
 
 export class ExpressApi {
     private readonly app = express();
@@ -16,6 +17,7 @@ export class ExpressApi {
         private readonly authenticationRoutes: AuthenticationRoutes,
         private readonly userRoutes: UserRoutes,
         private readonly messagingRoutes: MessagingRoutes,
+        private readonly healthRoutes: HealthRoutes,
     ) {
         this.configure();
     }
@@ -31,6 +33,7 @@ export class ExpressApi {
         this.app.use("/api/v1/authentication", this.authenticationRoutes.router);
         this.app.use("/api/v1/users", this.userRoutes.router);
         this.app.use("/api/v1/messaging", this.messagingRoutes.router);
+        this.app.use("/api/v1/health", this.healthRoutes.router);
 
         this.app.use(notFound());
 

@@ -21,6 +21,7 @@ import { UserAuthorizationService } from "../users/UserAuthorizationService";
 import { UserRepository } from "../users/UserRepository";
 import { UserService } from "../users/UserService";
 import { Application } from "./Application";
+import { HealthRoutes } from "../api/routes/HealthRoutes";
 
 export class ApplicationBuilder {
     /**
@@ -54,9 +55,11 @@ export class ApplicationBuilder {
         // Messaging
         const messagingController = new MessagingController(messagingService);
         const messagingRoutes = new MessagingRoutes(messagingController, authenticationService);
+        // Health
+        const healthRoutes = new HealthRoutes();
 
         // Create the Express server
-        const expressApi = new ExpressApi(authenticationRoutes, userRoutes, messagingRoutes);
+        const expressApi = new ExpressApi(authenticationRoutes, userRoutes, messagingRoutes, healthRoutes);
 
         // >>> Live helpers
         const connectionManager = new ConnectionManager();
