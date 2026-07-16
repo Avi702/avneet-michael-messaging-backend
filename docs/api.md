@@ -14,15 +14,17 @@ The URL column is always the URL relative to that module's base URL.
 
 The purpose is a friendly description of the route.
 
-The auth column is checked (✅) if the user must be logged in (valid `accessToken`) to use the route. In specific documentation, endpoints that require authentication are marked with a 🔒.
+The auth column is checked (✅) if the user must be logged in (valid `accessToken`) to use the route (the route is a locked route). In specific documentation, endpoints that require authentication are marked with a 🔒.
 
 ### Errors
 
-If the request body does not match the given pattern, the server will return a `BadRequestError` (status `400`, code `BAD_REQUEST`). This error is not documented in each route's specification.
+These are the errors common to every route. Note that no error tables will display these errors in these cases, and that if a route says "this route has no errors" or something similar, these errors may still occur.
 
-If the request is not authenticated but should be, the server will return an `UnauthorizedError` (status `401`, code `UNAUTHORIZED` or `INVALID_TOKEN`). If the client should receive `INVALID_TOKEN`, the client should refresh if possible using `refresh`, or log in again using `login`. This error is not documented in each route's specification.
+If the request body does not match the given pattern, the server will return a `BadRequestError` (status `400`, code `BAD_REQUEST`).
 
-If the request is not authorized, i.e., the user is logged in correctly but does not have permission to use the endpoint in the way specified, the server will return a generic `UnauthorizedError` (status `401`, code `UNAUTHORIZED`). This is intentional business logic and cannot be circumvented. This error is not documented in each route's specification.
+If the request is not authenticated but should be (attempting to use a locked route), the server will return an `UnauthorizedError` (status `401`, code `UNAUTHORIZED` or `INVALID_TOKEN`). If the client should receive `INVALID_TOKEN`, the client should refresh if possible using `refresh`, or log in again using `login`.
+
+If the request is not authorized, i.e., the user is logged in correctly but does not have permission to use the endpoint in the way specified, the server will return a generic `UnauthorizedError` (status `401`, code `UNAUTHORIZED`). This is intentional business logic and cannot be circumvented.
 
 The format of errors returned by the server is:
 ```js
