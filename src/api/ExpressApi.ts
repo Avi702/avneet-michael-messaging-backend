@@ -13,7 +13,7 @@ export class ExpressApi {
     private readonly app = express();
 
     constructor(
-        private readonly authRoutes: AuthenticationRoutes,
+        private readonly authenticationRoutes: AuthenticationRoutes,
         private readonly userRoutes: UserRoutes,
         private readonly messagingRoutes: MessagingRoutes,
     ) {
@@ -28,7 +28,7 @@ export class ExpressApi {
         this.app.use(helmet()); // general HTTP protocol security
         this.app.use(globalRateLimiter());
 
-        this.app.use("/api/v1/auth", this.authRoutes.router);
+        this.app.use("/api/v1/authentication", this.authenticationRoutes.router);
         this.app.use("/api/v1/users", this.userRoutes.router);
         this.app.use("/api/v1/messaging", this.messagingRoutes.router);
 
