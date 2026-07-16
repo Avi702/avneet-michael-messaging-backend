@@ -506,3 +506,22 @@ If successful:
 | --- | --- | --- | --- |
 | ImageNotFound | 404 | IMAGE_NOT_FOUND | The image with that ID was not found |
 
+## Status
+
+### Health
+
+Endpoint: `POST /api/v1/health`
+Endpoint: `GET /api/v1/health`
+
+#### Body
+No body is necessary.
+
+#### Responses
+Health endpoints always return:
+```js
+{
+    ok: true
+}
+```
+They are intended to provide a quick status check for the server.
+
