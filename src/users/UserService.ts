@@ -1,3 +1,5 @@
+import { UnauthorizedError } from "../shared/errors/common";
+import { UserAlreadyExistsError, UserNotFoundError } from "../shared/errors/users";
 import type { CreateUserDto } from "./dto/CreateUserDto";
 import type { UpdateProfileDto } from "./dto/UpdateProfileDto";
 import type { PublicUser, User } from "./User.types";
@@ -39,7 +41,7 @@ export class UserService {
         const user = await this.users.findById(id);
 
         if (!user) {
-            throw new Error(`User with id ${id} not found`);
+            throw new UserNotFoundError(id);
         }
 
         return user;
@@ -54,7 +56,7 @@ export class UserService {
      */
     public async getUser(userId: string, actorId: string): Promise<PublicUser> {
         if (!(await this.authorization.authorizeAction(userId, actorId, UserAction.Get))) {
-            throw new Error(`Unable to get user ${userId}: action not authorized`);
+            throw new UnauthorizedError(`User is not permitted to perform this action`);
         }
         const user = await this.getPrivateUser(userId);
         return this.users.publicizeUser(user);
@@ -74,7 +76,7 @@ export class UserService {
         }
         const isExistingUser = await this.users.existsByEmail(data.email);
         if (isExistingUser) {
-            throw new Error(`User with email ${data.email} already exists`);
+            throw new UserAlreadyExistsError(data.email);
         }
         return this.users.publicizeUser(await this.users.create(data));
     }
@@ -89,11 +91,11 @@ export class UserService {
      */
     public async updateProfile(userId: string, actorId: string, data: UpdateProfileDto): Promise<void> {
         if (!(await this.authorization.authorizeAction(userId, actorId, UserAction.Update))) {
-            throw new Error(`Unable to update user ${userId}: action not authorized`);
+            throw new UnauthorizedError(`User is not permitted to perform this action`);
         }
         const user = await this.users.updateProfile(userId, data);
         if (!user) {
-            throw new Error(`User with id ${userId} not found`);
+            throw new UserNotFoundError(userId);
         }
     }
 }

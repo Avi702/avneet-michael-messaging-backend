@@ -1,3 +1,5 @@
+import { UnauthorizedError } from "../shared/errors/common";
+import { ChatNotFoundError, ImageNotFoundError, MessageNotFoundError } from "../shared/errors/messaging";
 import { Chat } from "./Chat.types";
 import { CreateChatDto } from "./dto/CreateChatDto";
 import { SendMessageDto } from "./dto/SendMessageDto";
@@ -30,11 +32,11 @@ export class MessagingService {
      */
     public async getChat(chatId: string, actorId: string): Promise<Chat> {
         if (!(await this.authorization.authorizeAction(chatId, actorId, MessagingAction.GetChat))) {
-            throw new Error(`Action not authorized`);
+            throw new UnauthorizedError(`User is not permitted to perform this action`);
         }
         const chat = await this.messages.findChatById(chatId);
         if (!chat) {
-            throw new Error(`Chat ${chatId} does not exist`);
+            throw new ChatNotFoundError(chatId);
         }
         return chat;
     }
@@ -50,7 +52,7 @@ export class MessagingService {
      */
     public async addMemberToChat(chatId: string, actorId: string, userId: string): Promise<boolean> {
         if (!(await this.authorization.authorizeAction(chatId, actorId, MessagingAction.AddMember))) {
-            throw new Error(`Action not authorized`);
+            throw new UnauthorizedError(`User is not permitted to perform this action`);
         }
         return !!(await this.messages.addMemberToChat(chatId, userId));
     }
@@ -66,7 +68,7 @@ export class MessagingService {
      */
     public async removeMemberFromChat(chatId: string, actorId: string, userId: string): Promise<boolean> {
         if (!(await this.authorization.authorizeAction(chatId, actorId, MessagingAction.RemoveMember))) {
-            throw new Error(`Action not authorized`);
+            throw new UnauthorizedError(`User is not permitted to perform this action`);
         }
         return !!(await this.messages.removeMemberFromChat(chatId, userId));
     }
@@ -80,7 +82,7 @@ export class MessagingService {
      */
     public async updateChatInformation(chatId: string, actorId: string, data: UpdateChatInformationDto): Promise<void> {
         if (!(await this.authorization.authorizeAction(chatId, actorId, MessagingAction.UpdateInformation))) {
-            throw new Error(`Action not authorized`);
+            throw new UnauthorizedError(`User is not permitted to perform this action`);
         }
         await this.messages.updateChatInformation(chatId, data);
     }
@@ -95,7 +97,7 @@ export class MessagingService {
      */
     public async sendMessage(chatId: string, actorId: string, data: SendMessageDto): Promise<Message> {
         if (!(await this.authorization.authorizeAction(chatId, actorId, MessagingAction.SendMessage))) {
-            throw new Error(`Action not authorized`);
+            throw new UnauthorizedError(`User is not permitted to perform this action`);
         }
         return await this.messages.sendMessage(chatId, actorId, data);
     }
@@ -111,10 +113,10 @@ export class MessagingService {
     public async uploadImage(messageId: string, actorId: string, data: UploadImageDto): Promise<Image> {
         const message = await this.messages.findMessageById(messageId);
         if (!message) {
-            throw new Error(`Message ${messageId} does not exist`);
+            throw new MessageNotFoundError(messageId);
         }
         if (!(await this.authorization.authorizeAction(message.chat.toString(), actorId, MessagingAction.UploadImage))) {
-            throw new Error(`Action not authorized`);
+            throw new UnauthorizedError(`User is not permitted to perform this action`);
         }
         return await this.messages.uploadImage(messageId, data);
     }
@@ -130,14 +132,14 @@ export class MessagingService {
     public async getImage(imageId: string, actorId: string): Promise<Image> {
         const image = await this.messages.findImageById(imageId);
         if (!image) {
-            throw new Error(`Image not found ${imageId}`);
+            throw new ImageNotFoundError(imageId);
         }
         const message = await this.messages.findMessageById(image.message.toString());
         if (!message) {
-            throw new Error(`Message not found ${image.message}`);
+            throw new MessageNotFoundError(image.message.toString());
         }
         if (!(await this.authorization.authorizeAction(message.chat._id.toString(), actorId, MessagingAction.GetImage))) {
-            throw new Error(`Action not authorized`);
+            throw new UnauthorizedError(`User is not permitted to perform this action`);
         }
         return image;
     }
@@ -155,7 +157,7 @@ export class MessagingService {
      */
     public async getMessages(chatId: string, actorId: string, limit: number = 50, cursorDate: Date | null = null, cursorId: string | null = null): Promise<Message[]> {
         if (!(await this.authorization.authorizeAction(chatId, actorId, MessagingAction.GetMessages))) {
-            throw new Error(`Action not authorized`);
+            throw new UnauthorizedError(`User is not permitted to perform this action`);
         }
         return this.messages.getMessages(chatId, limit, cursorDate, cursorId);
     }

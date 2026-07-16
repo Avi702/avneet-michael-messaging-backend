@@ -1,3 +1,5 @@
+import { InvalidTokenError, PasswordIncorrectError } from "../shared/errors/authentication";
+import { UserNotFoundError } from "../shared/errors/users";
 import { CreateUserDto } from "../users/dto/CreateUserDto";
 import { PublicUser, User } from "../users/User.types";
 import { UserRepository } from "../users/UserRepository";
@@ -36,13 +38,13 @@ export class AuthenticationService {
         // Ensure the user exists
         const user = await this.users.findByEmail(email);
         if (!user) {
-            throw new Error(`User with email ${email} not found`);
+            throw new UserNotFoundError(email);
         }
 
         // Validate the password
         const validPassword = await this.passwordService.compare(password, user.password);
         if (!validPassword) {
-            throw new Error(`Password incorrect`);
+            throw new PasswordIncorrectError();
         }
 
         // Make the tokens
@@ -83,10 +85,16 @@ export class AuthenticationService {
      * @throws If the user was not found
      */
     public async authenticate(accessToken: string): Promise<PublicUser> {
-        const payload = this.jwtService.verifyAccessToken(accessToken);
+        let payload;
+        try {
+            payload = this.jwtService.verifyAccessToken(accessToken);
+        }
+        catch {
+            throw new InvalidTokenError();
+        }
         const user = await this.users.findById(payload.sub);
         if (!user) {
-            throw new Error(`User not found`);
+            throw new UserNotFoundError(`(logged in user)`);
         }
         return this.users.publicizeUser(user);
     }
@@ -99,10 +107,16 @@ export class AuthenticationService {
      * @throws If the user does not exist
      */
     public async refresh(refreshToken: string): Promise<RefreshResult> {
-        const payload = this.jwtService.verifyRefreshToken(refreshToken);
+        let payload;
+        try {
+            payload = this.jwtService.verifyRefreshToken(refreshToken);
+        }
+        catch {
+            throw new InvalidTokenError();
+        }
         const user = await this.users.findById(payload.sub);
         if (!user) {
-            throw new Error(`User not found`);
+            throw new UserNotFoundError(`(logged in user)`);
         }
         return {
             accessToken: this.jwtService.generateAccessToken({ sub: user._id.toString() }),
