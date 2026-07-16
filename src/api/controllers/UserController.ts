@@ -13,6 +13,6 @@ export class UserController {
 
     public updateProfile = asyncHandler(async (req: Request, res: Response) => {
         await this.userService.updateProfile(req.actorId, req.body);
-        res.status(200).json({ message: "success" });
+        res.status(200).json({ success: true });
     });
 }
