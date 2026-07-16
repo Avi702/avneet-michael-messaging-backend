@@ -237,7 +237,7 @@ If successful:
 Failures may return:
 | Error | Status | Code | Reason |
 | --- | --- | --- | --- |
-| UserNotFound | 404 | USER_NOT_FOUND | The user account with that email was not found |
+| UserNotFound | 404 | USER_NOT_FOUND | The user account with that ID was not found |
 
 ### Update Profile 🔒
 
@@ -259,4 +259,250 @@ If successful:
 }
 ```
 There should be no additional failures for this route unless the user is not logged in.
+
+## Messaging
+
+Messaging routes allow users to manage and find information about chats.
+
+Base URL: `/api/v1/messaging`
+
+### Routes
+| URL | Purpose | Auth |
+| --- | --- | --- |
+| createChat | Creates a new Chat (group chat) | ✅ |
+| getChat | Gets information about a Chat | ✅ |
+| addMemberToChat | Adds a member to a Chat | ✅ |
+| removeMemberFromChat | Removes a member from a Chat | ✅ |
+| updateChatInformation | Updates information about a Chat | ✅ |
+| ⚠️ uploadImage | Uploads an image associated with a message | ✅ |
+| ⚠️ getImage | Gets an image file from storage | ✅ |
+
+### Create Chat 🔒
+
+Endpoint: `POST /api/v1/messaging/createChat`
+
+#### Body
+```js
+{
+    title: string
+}
+```
+- Title must be between 3 and 64 characters (inclusive).
+
+#### Responses
+If successful:
+```js
+{
+    // see src/messaging/Chat.types.ts; this is a Chat
+    _id: string; // Mongoose ObjectID
+    
+    title: string;
+    createdAt: Date;
+    // Mongoose ObjectIDs
+    owner: string;
+    members: string[];
+}
+```
+There should be no additional failures for this route unless the user is not logged in.
+
+### Get Chat 🔒
+
+Endpoint: `POST /api/v1/messaging/getChat`
+
+#### Authorization
+This method requires that the user is in the Chat whose ID is specified by `chatId`.
+
+#### Body
+```js
+{
+    chatId: string
+}
+```
+- Chat ID must be a valid MongoDB ID
+
+#### Responses
+If successful:
+```js
+{
+    // see src/messaging/Chat.types.ts; this is a Chat
+    _id: string; // Mongoose ObjectID
+    
+    title: string;
+    createdAt: Date;
+    // Mongoose ObjectIDs
+    owner: string;
+    members: string[];
+}
+```
+There should be no additional failures for this route unless the user is not logged in.
+
+### Add Member to Chat 🔒
+
+Endpoint: `POST /api/v1/messaging/addMemberToChat`
+
+#### Authorization
+This method requires that the user is the owner of the Chat whose ID is specified by `chatId`.
+
+#### Body
+```js
+{
+    chatId: string,
+    userId: string
+}
+```
+- Chat ID must be a valid MongoDB ID
+- User ID must be a valid MongoDB ID
+
+#### Responses
+If successful:
+```js
+{
+    success: boolean
+}
+```
+Success will be true if the user was added and false if the user was already in the Chat. Receiving `success = false` does not constitute an error.
+
+| Error | Status | Code | Reason |
+| --- | --- | --- | --- |
+| UserNotFound | 404 | USER_NOT_FOUND | The user account with that ID was not found |
+| ChatNotFound | 404 | CHAT_NOT_FOUND | The chat with that ID was not found |
+
+### Remove Member from Chat 🔒
+
+Endpoint: `POST /api/v1/messaging/removeMemberFromChat`
+
+#### Authorization
+This method requires that the user is the owner of the Chat whose ID is specified by `chatId`.
+
+#### Body
+```js
+{
+    chatId: string,
+    userId: string
+}
+```
+- Chat ID must be a valid MongoDB ID.
+- User ID must be a valid MongoDB ID.
+
+#### Responses
+If successful:
+```js
+{
+    success: boolean
+}
+```
+Success will be true if the user was removed and false if the user was not in the Chat. Receiving `success = false` does not constitute an error.
+
+| Error | Status | Code | Reason |
+| --- | --- | --- | --- |
+| UserNotFound | 404 | USER_NOT_FOUND | The user account with that ID was not found |
+| ChatNotFound | 404 | CHAT_NOT_FOUND | The chat with that ID was not found |
+
+### Update Chat Information 🔒
+
+Endpoint: `POST /api/v1/messaging/updateChatInformation`
+
+#### Authorization
+This method requires that the user is the owner of the Chat whose ID is specified by `chatId`.
+
+#### Body
+```js
+{
+    chatId: string,
+    title: string
+}
+```
+- Chat ID must be a valid MongoDB ID.
+- Title must be between 3 and 64 characters (inclusive).
+
+#### Responses
+If successful:
+```js
+{
+    success: boolean
+}
+```
+Success will be true if the user was removed and false if the user was not in the Chat. Receiving `success = false` does not constitute an error.
+
+| Error | Status | Code | Reason |
+| --- | --- | --- | --- |
+| ChatNotFound | 404 | CHAT_NOT_FOUND | The chat with that ID was not found |
+
+### ⚠️ Upload Image 🔒
+
+Endpoint: `POST /api/v1/messaging/uploadImage`
+
+#### ⚠️ Placeholder Endpoint
+
+Image handling has not yeet been implemented properly. Images uploaded will not be stored on the server. Additional middleware and a file storage protocol will be necessary before image support is ready.
+
+#### Authorization
+This method requires that the user sent the message associated with the image.
+
+#### Body
+```js
+{
+    messageId: string,
+    uri: string
+}
+```
+- Message ID must be a valid MongoDB ID. This is the ID of the message the image is attached to.
+- URI will be handled differently in the final implementation.
+
+#### Responses
+If successful:
+```js
+{
+    // see src/messaging/Image.types.ts; this is an Image
+    // MongoDB ID
+    _id: string;
+
+    uri: string;
+    createdAt: Date;
+    // MongoDB ID
+    message: string;
+}
+```
+
+| Error | Status | Code | Reason |
+| --- | --- | --- | --- |
+| MessageNotFound | 404 | MESSAGE_NOT_FOUND | The message with that ID was not found |
+
+### ⚠️ Get Image 🔒
+
+Endpoint: `POST /api/v1/messaging/getImage`
+
+#### ⚠️ Placeholder Endpoint
+
+Image handling has not yeet been implemented properly. Images uploaded will not be stored on the server. Additional middleware and a file storage protocol will be necessary before image support is ready.
+
+#### Authorization
+This method requires that the user is in the chat associated with the message associated with the image. I.e., the image was uploaded in a chat the user has access to.
+
+#### Body
+```js
+{
+    imageId: string
+}
+```
+- Image ID must be a valid MongoDB ID. This is the ID of the image.
+
+#### Responses
+If successful:
+```js
+{
+    // see src/messaging/Image.types.ts; this is an Image
+    // MongoDB ID
+    _id: string;
+
+    uri: string;
+    createdAt: Date;
+    // MongoDB ID
+    message: string;
+}
+```
+
+| Error | Status | Code | Reason |
+| --- | --- | --- | --- |
+| ImageNotFound | 404 | IMAGE_NOT_FOUND | The image with that ID was not found |
 
