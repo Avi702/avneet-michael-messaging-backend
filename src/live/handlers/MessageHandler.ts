@@ -26,7 +26,11 @@ export class MessageHandler implements SocketHandler {
             }
             const message = await this.messagingService.sendMessage(data.chatId, socket.data.userId, data);
             socket.join(data.chatId);
-            socket.to(data.chatId).emit("")
+            socket.to(data.chatId).emit("message:new", {
+                success: true,
+                note: "new message",
+                message: message
+            });
             socket.emit("reply:message:send", {
                 success: true,
                 note: "success",
