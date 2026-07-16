@@ -25,7 +25,7 @@ If the request is not authenticated but should be, the server will return an `Un
 If the request is not authorized, i.e., the user is logged in correctly but does not have permission to use the endpoint in the way specified, the server will return a generic `UnauthorizedError` (status `401`, code `UNAUTHORIZED`). This is intentional business logic and cannot be circumvented.
 
 The format of errors returned by the server is:
-```json
+```js
 {
     error: {
         code: string,
@@ -54,7 +54,7 @@ Base URL: `/api/v1/authentication`
 ### Login
 
 #### Body
-```json
+```js
 {
     email: string,
     password: string,
@@ -65,7 +65,7 @@ Base URL: `/api/v1/authentication`
 
 #### Responses
 If successful:
-```json
+```js
 {
     accessToken: string,
     refreshToken: string,
@@ -81,7 +81,7 @@ Failures may return:
 ### Register
 
 #### Body
-```json
+```js
 {
     // see users/dto/CreateUserDto.ts for more information
     email: string,
@@ -97,7 +97,7 @@ Failures may return:
 
 #### Responses
 If successful:
-```json
+```js
 {
     // see src/user/User.types.ts for more information; this is a PublicUser
     _id: string,
@@ -116,7 +116,7 @@ Failures may return:
 ### Authenticate
 
 #### Body
-```json
+```js
 {
     accessToken: string     // valid JWT
 }
@@ -125,7 +125,7 @@ Failures may return:
 
 #### Responses
 If successful:
-```json
+```js
 {
     // see src/user/User.types.ts for more information; this is a PublicUser
     _id: string,
@@ -144,7 +144,7 @@ Failures may return:
 ### Refresh
 
 #### Body
-```json
+```js
 {
     refreshToken: string     // valid JWT
 }
@@ -153,7 +153,7 @@ Failures may return:
 
 #### Responses
 If successful:
-```json
+```js
 {
     accessToken: string,
     refreshToken: string
@@ -168,7 +168,7 @@ Failures may return:
 ### Update Password 🔒
 
 #### Body
-```json
+```js
 {
     password: string
 }
@@ -177,7 +177,7 @@ Failures may return:
 
 #### Responses
 If successful:
-```json
+```js
 {
     success: boolean
 }
