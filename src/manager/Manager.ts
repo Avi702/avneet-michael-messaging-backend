@@ -32,16 +32,17 @@ export class Manager {
 
     /**
      * Listens on the standard server
+     * @param overridePort Override the .env port for testing
      * @returns The port, once listening
      */
-    public async listen(): Promise<number> {
+    public async listen(overridePort: number | undefined): Promise<number> {
         if (!this.databaseInitialized) {
             throw new Error("Must initialize database and create application before creating application");
         }
         if (!this.application) {
             throw new Error("Must create application before listening");
         }
-        return this.application.start(VARIABLES.port);
+        return this.application.start(overridePort ?? VARIABLES.port);
     }
 
     /**
