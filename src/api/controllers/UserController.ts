@@ -12,8 +12,7 @@ export class UserController {
     });
 
     public updateProfile = asyncHandler(async (req: Request, res: Response) => {
-        const { userId } = req.body;
-        await this.userService.updateProfile(userId, req.actorId, req.body);
+        await this.userService.updateProfile(req.actorId, req.body);
         res.status(200).json({ message: "success" });
     });
 }

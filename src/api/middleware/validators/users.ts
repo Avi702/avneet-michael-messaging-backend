@@ -6,6 +6,5 @@ export const getUserSchema = z.object({
 });
 
 export const updateProfileSchema = z.object({
-    userId: zObjectId,
     displayName: z.string().min(3).max(64),
 });

@@ -37,45 +37,20 @@ describe("users validator", () => {
     
         test("rejects missing field", () => {
             expect(updateProfileSchema.safeParse({
-                displayName: "John Doe",
-            }).success).toBe(false);
-            expect(updateProfileSchema.safeParse({
-                userId: "507f1f77bcf86cd799439011",
-            }).success).toBe(false);
-            expect(updateProfileSchema.safeParse({
             }).success).toBe(false);
         });
     
         test("rejects bad data type", () => {
             expect(updateProfileSchema.safeParse({
-                userId: 3,
-                displayName: "John Doe",
-            }).success).toBe(false);
-            expect(updateProfileSchema.safeParse({
-                userId: "507f1f77bcf86cd799439011",
-                displayName: 3,
-            }).success).toBe(false);
-            expect(updateProfileSchema.safeParse({
-                userId: 3,
                 displayName: 3,
             }).success).toBe(false);
         });
     
         test("rejects bad formatting", () => {
             expect(updateProfileSchema.safeParse({
-                userId: "wjiowef",
-                displayName: "John Doe",
-            }).success).toBe(false);
-            expect(updateProfileSchema.safeParse({
-                userId: "507f1f77bcf86cd799439011",
                 displayName: "J",
             }).success).toBe(false);
             expect(updateProfileSchema.safeParse({
-                userId: "507f1f77bcf86cd799439011",
-                displayName: "507f1f77bcf86cd799439011507f1f77bcf86cd799439011507f1f77bcf86cd799439011507f1f77bcf86cd799439011507f1f77bcf86cd799439011507f1f77bcf86cd799439011507f1f77bcf86cd799439011507f1f77bcf86cd799439011J",
-            }).success).toBe(false);
-            expect(updateProfileSchema.safeParse({
-                userId: "jweiofjwe",
                 displayName: "507f1f77bcf86cd799439011507f1f77bcf86cd799439011507f1f77bcf86cd799439011507f1f77bcf86cd799439011507f1f77bcf86cd799439011507f1f77bcf86cd799439011507f1f77bcf86cd799439011507f1f77bcf86cd799439011J",
             }).success).toBe(false);
         });
