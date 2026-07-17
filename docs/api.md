@@ -334,7 +334,9 @@ If successful:
     members: string[];
 }
 ```
-There should be no additional failures for this route unless the user is not logged in.
+| Error | Status | Code | Reason |
+| --- | --- | --- | --- |
+| ChatNotFound | 404 | CHAT_NOT_FOUND | The chat with that ID was not found |
 
 ### Add Member to Chat 🔒
 
