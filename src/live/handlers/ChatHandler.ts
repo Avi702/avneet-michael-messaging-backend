@@ -26,6 +26,10 @@ export class ChatHandler implements SocketHandler {
                 return;
             }
             const chat = await this.messagingService.getChat(data.chatId, socket.data.userId);
+            // Leave other chat rooms
+            for (const room of socket.rooms) {
+                socket.leave(room);
+            }
             socket.join(chat._id.toString());
             socket.emit("reply:chat:open", {
                 success: true,
