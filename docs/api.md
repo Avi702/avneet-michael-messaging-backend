@@ -359,15 +359,16 @@ This method requires that the user is the owner of the Chat whose ID is specifie
 If successful:
 ```js
 {
-    success: boolean
+    success: true
 }
 ```
-Success will be true if the user was added and false if the user was already in the Chat. Receiving `success = false` does not constitute an error.
 
 | Error | Status | Code | Reason |
 | --- | --- | --- | --- |
 | UserNotFound | 404 | USER_NOT_FOUND | The user account with that ID was not found |
 | ChatNotFound | 404 | CHAT_NOT_FOUND | The chat with that ID was not found |
+| UserOwnsChat | 409 | USER_OWNS_CHAT | The user to be added owns the chat |
+| UserAlreadyInChat | 409 | USER_ALREADY_IN_CHAT | The user to be added is already in the chat |
 
 ### Remove Member from Chat 🔒
 
@@ -390,15 +391,16 @@ This method requires that the user is the owner of the Chat whose ID is specifie
 If successful:
 ```js
 {
-    success: boolean
+    success: true
 }
 ```
-Success will be true if the user was removed and false if the user was not in the Chat. Receiving `success = false` does not constitute an error.
 
 | Error | Status | Code | Reason |
 | --- | --- | --- | --- |
 | UserNotFound | 404 | USER_NOT_FOUND | The user account with that ID was not found |
 | ChatNotFound | 404 | CHAT_NOT_FOUND | The chat with that ID was not found |
+| UserOwnsChat | 409 | USER_OWNS_CHAT | The user to be removed owns the chat |
+| UserNotInChat | 404 | USER_NOT_IN_CHAT | The user to be removed is not in the chat |
 
 ### Update Chat Information 🔒
 
