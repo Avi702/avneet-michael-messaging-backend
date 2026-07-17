@@ -17,7 +17,6 @@ export function authenticate(authenticationService: AuthenticationService): Requ
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
             const header = req.header("Authorization");
-            console.log("header", header)
             if (!header || !header.startsWith("Bearer ")) {
                 throw new UnauthorizedError("No authentication token provided.")
             }
