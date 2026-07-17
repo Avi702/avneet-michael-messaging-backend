@@ -10,11 +10,12 @@ module.exports = {
     ...tsJestTransformCfg,
   },
 
-  roots: ["./src"],
+  roots: ["./src", "./tests"],
 
   testMatch: [
     "**/__tests__/**/*.+(ts|js)",
-    "**/?(.*)+(spec|test).+(ts|js)",
+    "**/*.test.ts",
+    "**/*.spec.ts",
   ],
 
   clearMocks: true,
