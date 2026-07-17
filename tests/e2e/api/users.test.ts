@@ -14,9 +14,9 @@ afterAll(async () => {
 });
 
 describe("users routes", () => {
-    describe("getUser endpoint", () => {
+    describe("getUserById endpoint", () => {
         test("rejects not authenticated", async () => {
-            const res = await makeRequest(server.baseUrl, "users/getUser", {
+            const res = await makeRequest(server.baseUrl, "users/getUserById", {
                 userId: "hello",
             });
             expect(res.status).toBe(401);
@@ -26,7 +26,7 @@ describe("users routes", () => {
 
         test("rejects invalid format", async () => {
             const loginJson = await makeUser(server.baseUrl);
-            const res = await makeRequest(server.baseUrl, "users/getUser", {
+            const res = await makeRequest(server.baseUrl, "users/getUserById", {
             }, loginJson.accessToken);
             expect(res.status).toBe(400);
             const json = await res.json();
@@ -35,7 +35,7 @@ describe("users routes", () => {
 
         test("rejects does not exist", async () => {
             const loginJson = await makeUser(server.baseUrl);
-            const res = await makeRequest(server.baseUrl, "users/getUser", {
+            const res = await makeRequest(server.baseUrl, "users/getUserById", {
                 userId: "507f191e810c19729de860ea",
             }, loginJson.accessToken);
             expect(res.status).toBe(404);
@@ -46,7 +46,7 @@ describe("users routes", () => {
         test("accepts valid input", async () => {
             const loginJson1 = await makeUser(server.baseUrl);
             const loginJson2 = await makeUser(server.baseUrl);
-            const res = await makeRequest(server.baseUrl, "users/getUser", {
+            const res = await makeRequest(server.baseUrl, "users/getUserById", {
                 userId: loginJson2.user._id.toString(),
             }, loginJson1.accessToken);
             expect(res.status).toBe(200);

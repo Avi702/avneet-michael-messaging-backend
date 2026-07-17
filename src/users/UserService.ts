@@ -54,7 +54,7 @@ export class UserService {
      * @returns The PublicUser
      * @throws Error if action is not authorized
      */
-    public async getUser(userId: string, actorId: string): Promise<PublicUser> {
+    public async getUserById(userId: string, actorId: string): Promise<PublicUser> {
         if (!(await this.authorization.authorizeAction(userId, actorId, UserAction.Get))) {
             throw new UnauthorizedError(`User is not permitted to perform this action`);
         }

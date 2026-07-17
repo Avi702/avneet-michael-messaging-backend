@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { zObjectId } from "../../../shared/validators/zObjectId";
 
-export const getUserSchema = z.object({
+export const getUserByIdSchema = z.object({
     userId: zObjectId,
 });
 

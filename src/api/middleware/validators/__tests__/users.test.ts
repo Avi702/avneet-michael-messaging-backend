@@ -1,27 +1,27 @@
 import { beforeAll, afterAll, describe, beforeEach, test, expect } from "@jest/globals";
-import { getUserSchema, updateProfileSchema } from "../users";
+import { getUserByIdSchema, updateProfileSchema } from "../users";
 
 describe("users validator", () => {
-    describe("getUserSchema", () => {
+    describe("getUserByIdSchema", () => {
         test("accepts valid input", () => {
-            expect(getUserSchema.safeParse({
+            expect(getUserByIdSchema.safeParse({
                 userId: "507f1f77bcf86cd799439011"
             }).success).toBe(true);
         });
     
         test("rejects missing field", () => {
-            expect(getUserSchema.safeParse({
+            expect(getUserByIdSchema.safeParse({
             }).success).toBe(false);
         });
     
         test("rejects bad data type", () => {
-            expect(getUserSchema.safeParse({
+            expect(getUserByIdSchema.safeParse({
                 userId: 3,
             }).success).toBe(false);
         });
     
         test("rejects bad object ID format", () => {
-            expect(getUserSchema.safeParse({
+            expect(getUserByIdSchema.safeParse({
                 userId: 3,
             }).success).toBe(false);
         });

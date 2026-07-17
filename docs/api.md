@@ -207,12 +207,12 @@ Base URL: `/api/v1/users`
 ### Routes
 | URL | Purpose | Auth |
 | --- | --- | --- |
-| getUser | Fetches the `PublicUser` information for a user | ✅ |
+| getUserById | Fetches the `PublicUser` information for a user | ✅ |
 | updateProfile | Updates a user's profile information | ✅ |
 
-### Get User 🔒
+### Get User By ID 🔒
 
-Endpoint: `POST /api/v1/users/getUser`
+Endpoint: `POST /api/v1/users/getUserById`
 
 #### Body
 ```js

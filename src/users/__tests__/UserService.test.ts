@@ -49,7 +49,7 @@ describe("UserService", () => {
         // Create the user
         const user = await service.createUser(GENERIC_USER_CREATION_DTO);
         // Get the user
-        const found = await service.getUser(user._id.toString(), "");
+        const found = await service.getUserById(user._id.toString(), "");
         expect(found._id).toStrictEqual(user._id);
     });
 
@@ -57,7 +57,7 @@ describe("UserService", () => {
         // Create the user
         const user = await service.createUser(GENERIC_USER_CREATION_DTO);
         // Get the user
-        const publicUser = await service.getUser(user._id.toString(), "");
+        const publicUser = await service.getUserById(user._id.toString(), "");
         expect(publicUser._id).toStrictEqual(user._id);
         expect(publicUser.displayName).toBe("John Doe");
         expect((publicUser as any).password).toBe(undefined);
@@ -85,7 +85,7 @@ describe("UserService", () => {
             displayName: "Bob Doe",
         });
         // Get the user again
-        const updated = await service.getUser(user._id.toString(), "");
+        const updated = await service.getUserById(user._id.toString(), "");
         // Check the update
         expect(updated?.displayName).toBe("Bob Doe");
     });

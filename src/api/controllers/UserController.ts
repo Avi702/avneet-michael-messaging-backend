@@ -5,9 +5,9 @@ import { asyncHandler } from "./asyncHandler";
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
-    public getUser = asyncHandler(async (req: Request, res: Response) => {
+    public getUserById = asyncHandler(async (req: Request, res: Response) => {
         const { userId } = req.body;
-        const result = await this.userService.getUser(userId, req.actorId);
+        const result = await this.userService.getUserById(userId, req.actorId);
         res.json(result);
     });
 
