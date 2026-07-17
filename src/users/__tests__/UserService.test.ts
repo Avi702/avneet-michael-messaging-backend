@@ -79,6 +79,32 @@ describe("UserService", () => {
         });
     });
 
+    describe("getUserByEmail method", () => {
+        test("gets a user by email", async () => {
+            // Create the user
+            const user = await service.createUser(GENERIC_USER_CREATION_DTO);
+            // Get the user
+            const found = await service.getUserByEmail(GENERIC_USER_CREATION_DTO.email, "");
+            expect(found._id).toStrictEqual(user._id);
+        });
+
+        test("rejects nonexistent user", async () => {
+            await expect(service.getUserByEmail("nomail", OID_1.toString())).rejects.toThrow(UserNotFoundError);
+        });
+
+        test("only includes public data", async () => {
+            // Create the user
+            const user = await service.createUser(GENERIC_USER_CREATION_DTO);
+            // Get the user
+            const publicUser = await service.getUserByEmail(GENERIC_USER_CREATION_DTO.email, "");
+            expect(publicUser._id).toStrictEqual(user._id);
+            expect(publicUser.displayName).toBe("John Doe");
+            expect((publicUser as any).password).toBe(undefined);
+            expect((publicUser as any).email).toBe(undefined);
+            expect((publicUser as any).birthDate).toBe(undefined);
+        });
+    });
+
     describe("createUser method", () => {
         test("creates new user", async () => {
             const user = await service.createUser(GENERIC_USER_CREATION_DTO);

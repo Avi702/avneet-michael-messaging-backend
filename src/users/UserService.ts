@@ -49,6 +49,22 @@ export class UserService {
     }
 
     /**
+     * Gets a user by email, including all information
+     * @param email The email of the user
+     * @returns The User
+     * @throws UserNotFoundError if user does not exist
+     */
+    private async getPrivateUserByEmail(email: string): Promise<User> {
+        const user = await this.users.findByEmail(email);
+
+        if (!user) {
+            throw new UserNotFoundError(email);
+        }
+
+        return user;
+    }
+
+    /**
      * Returns the public (client safe) user object for a given user ID
      * @param userId The ID of the user to get
      * @param actorId The ID of the user who is doing the getting
@@ -57,10 +73,26 @@ export class UserService {
      * @throws UserNotFoundError if user does not exist
      */
     public async getUserById(userId: string, actorId: string): Promise<PublicUser> {
-        if (!(await this.authorization.authorizeAction(userId, actorId, UserAction.Get))) {
+        if (!(await this.authorization.authorizeAction(userId, actorId, UserAction.GetById))) {
             throw new UnauthorizedError(`User is not permitted to perform this action`);
         }
         const user = await this.getPrivateUser(userId);
+        return this.users.publicizeUser(user);
+    }
+
+    /**
+     * Returns the public (client safe) user object for a given email
+     * @param email The email of the user to get
+     * @param actorId The ID of the user who is doing the getting
+     * @returns The PublicUser
+     * @throws UnauthorizedError if action is not authorized
+     * @throws UserNotFoundError if user does not exist
+     */
+    public async getUserByEmail(email: string, actorId: string): Promise<PublicUser> {
+        if (!(await this.authorization.authorizeAction(email, actorId, UserAction.GetByEmail))) {
+            throw new UnauthorizedError(`User is not permitted to perform this action`);
+        }
+        const user = await this.getPrivateUserByEmail(email);
         return this.users.publicizeUser(user);
     }
 

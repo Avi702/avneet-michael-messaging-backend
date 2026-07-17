@@ -31,7 +31,13 @@ describe("UserAuthorizationService", () => {
     describe("UserAction.Get", () => {
         // No need for more tests, gating for get user methods is always by authentication only
         test("always allows get", async () => {
-            expect(await authorization.authorizeAction("", "", UserAction.Get)).toBe(true);
+            expect(await authorization.authorizeAction("", "", UserAction.GetById)).toBe(true);
+        });
+    });
+
+    describe("UserAction.GetByEmail", () => {
+        test("always allows get", async () => {
+            expect(await authorization.authorizeAction("", "", UserAction.GetByEmail)).toBe(true);
         });
     });
 

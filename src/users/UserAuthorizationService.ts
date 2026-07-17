@@ -1,7 +1,8 @@
 import { UserRepository } from "./UserRepository";
 
 export const UserAction = {
-    Get: "GET", // Get the public user. Private user gets are only for internal use
+    GetById: "GET_BY_ID", // Get the public user. Private user gets are only for internal use
+    GetByEmail: "GET_BY_EMAIL",
     Update: "UPDATE", // Update the user's profile information
 } as const;
 
@@ -18,7 +19,7 @@ export class UserAuthorizationService {
      * @returns Promise for boolean: true if allowed, false if disallowed
      */
     public async authorizeAction(userId: string, actorId: string, action: UserActionType): Promise<boolean> {
-        if (action === UserAction.Get) {
+        if (action === UserAction.GetById || action === UserAction.GetByEmail) {
             return true;
         }
         if (action == UserAction.Update) {
