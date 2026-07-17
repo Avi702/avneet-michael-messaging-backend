@@ -240,7 +240,7 @@ Failures may return:
 | --- | --- | --- | --- |
 | UserNotFound | 404 | USER_NOT_FOUND | The user account with that ID was not found |
 
-### Get User By ID 🔒
+### Get User By Email 🔒
 
 Endpoint: `POST /api/v1/users/getUserByEmail`
 
