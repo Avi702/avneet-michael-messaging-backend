@@ -5,6 +5,10 @@ export const getUserByIdSchema = z.object({
     userId: zObjectId,
 });
 
+export const getUserByEmailSchema = z.object({
+    email: z.email(),
+});
+
 export const updateProfileSchema = z.object({
     displayName: z.string().min(3).max(64),
 });
