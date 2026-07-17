@@ -1,6 +1,6 @@
 # Messaging Application Backend
 
-This is the backend for a messaging application project I'm working on with Avneet Aurora and Mohnish Pothineni. I'm developing the backend, and they're developing the frontend.
+This is the backend for a messaging application project that I'm working on with Avneet Aurora and Mohnish Pothineni. I'm developing the backend, and they're developing the frontend.
 
 For the frontend, please see [the corresponding repository](https://github.com/Avi702/messaging-application-frontend).
 
@@ -8,7 +8,7 @@ For the frontend, please see [the corresponding repository](https://github.com/A
 
 For information about the structure and modules, see [architecture.md](docs/architecture.md).
 
-For specifications, see [the HTTP API specification](docs/api.md) and [the socket.IO specification](docs/sockets.md).
+For usage specifications, see [the HTTP API specification](docs/api.md) and [the socket.IO specification](docs/sockets.md).
 
 ## Get Started
 
@@ -56,7 +56,7 @@ The URI for the MongoDB connection. This is needed unless in testing mode.
 
 ## Building
 
-Before starting a server, the code must be compiled into Javascript.
+Before starting a server, the code must be compiled into JavaScript from its TypeScript source.
 
 ### 1. Install modules
 
