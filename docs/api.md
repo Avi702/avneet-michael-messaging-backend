@@ -208,6 +208,7 @@ Base URL: `/api/v1/users`
 | URL | Purpose | Auth |
 | --- | --- | --- |
 | getUserById | Fetches the `PublicUser` information for a user | ✅ |
+| getUserByEmail | Fetches the `PublicUser` information for a user | ✅ |
 | updateProfile | Updates a user's profile information | ✅ |
 
 ### Get User By ID 🔒
@@ -221,6 +222,35 @@ Endpoint: `POST /api/v1/users/getUserById`
 }
 ```
 - User ID must be a valid database ID
+
+#### Responses
+If successful:
+```js
+{
+    // see src/user/User.types.ts for more information; this is a PublicUser
+    _id: string,
+    createdAt: Date,
+    displayName: string,
+    lastOnline: Date,
+    isOnline: boolean
+}
+```
+Failures may return:
+| Error | Status | Code | Reason |
+| --- | --- | --- | --- |
+| UserNotFound | 404 | USER_NOT_FOUND | The user account with that ID was not found |
+
+### Get User By ID 🔒
+
+Endpoint: `POST /api/v1/users/getUserByEmail`
+
+#### Body
+```js
+{
+    email: string
+}
+```
+- Email must be a valid email
 
 #### Responses
 If successful:
