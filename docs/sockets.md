@@ -62,7 +62,7 @@ Event name: `message:send`
 
 The send message event allows a client to send a message in a chat.
 
-While the client technically does not need to actively subscribe to the chat to send a message, there should not be any cases in which a client sends a message without being subscribed to that chat.
+The client will automatically subscribe to the chat upon sending a message, if not already subscribed.
 
 #### Authorization
 
@@ -141,6 +141,8 @@ The open chat event allows a client to subscribe to a Chat's current messages.
 
 Internally, it joins the client to that chat's Socket.IO room.
 
+It will unsubscribe the client from any other chats the client is subscribed to.
+
 #### Authorization
 
 The user must be a member of the chat specified.
@@ -181,5 +183,22 @@ No matter what, the client should receive a `reply:chat:close` containing this i
 {
     success: true,
     note: "closed chat"
+}
+```
+
+### New Message
+
+Event name: `message:new`
+
+New message is only fired from the server. Clients should handle it at all times.
+
+New message means that the chat that the client is subscribed to has received a new message from another user.
+
+#### Data
+```js
+{
+    success: true,
+    note: "new message",
+    message: Message // see src/messaging/Message.types.ts; this is a Message
 }
 ```
