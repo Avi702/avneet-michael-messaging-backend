@@ -1,4 +1,4 @@
-import { MessageNotFoundError } from "../shared/errors/messaging";
+import { ChatNotFoundError, MessageNotFoundError } from "../shared/errors/messaging";
 import { MessagingRepository } from "./MessagingRepository";
 
 export const MessagingAction = {
@@ -34,14 +34,14 @@ export class MessagingAuthorizationService {
         ) {
             const chat = await this.messages.findChatById(resourceId);
             if (!chat) {
-                throw new Error(`Chat ${resourceId} does not exist`);
+                throw new ChatNotFoundError(resourceId);
             }
             return (chat.owner.toString() === actorId) || (!!(chat?.members.some(id => id.toString() === actorId)));
         }
         if (action === MessagingAction.AddMember || action === MessagingAction.RemoveMember || action === MessagingAction.UpdateInformation) {
             const chat = await this.messages.findChatById(resourceId);
             if (!chat) {
-                throw new Error(`Chat ${resourceId} does not exist`);
+                throw new ChatNotFoundError(resourceId);
             }
             return chat.owner.toString() === actorId;
         }
