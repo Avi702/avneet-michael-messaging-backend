@@ -220,4 +220,52 @@ describe("messaging routes", () => {
             expect(json.success).toBe(true);
         });
     });
+
+    describe("updateChatInformation endpoint", () => {
+        test("rejects not authenticated", async () => {
+            const res = await makeRequest(server.baseUrl, "messaging/updateChatInformation", {
+                chatId: "507f191e810c19729de860ea",
+                title: "new Title",
+            });
+            expect(res.status).toBe(401);
+            const json = await res.json();
+            expect(json.error.code).toBe("UNAUTHORIZED");
+        });
+
+        test("rejects invalid format", async () => {
+            const loginJson = await makeUser(server.baseUrl);
+            const res = await makeRequest(server.baseUrl, "messaging/updateChatInformation", {
+            }, loginJson.accessToken);
+            expect(res.status).toBe(400);
+            const json = await res.json();
+            expect(json.error.code).toBe("BAD_REQUEST");
+        });
+
+        test("rejects chat does not exist", async () => {
+            const loginJson = await makeUser(server.baseUrl);
+            const res = await makeRequest(server.baseUrl, "messaging/updateChatInformation", {
+                chatId: "507f191e810c19729de860ea",
+                title: "new Title",
+            }, loginJson.accessToken);
+            expect(res.status).toBe(404);
+            const json = await res.json();
+            expect(json.error.code).toBe("CHAT_NOT_FOUND");
+        });
+
+        test("accepts valid input", async () => {
+            const loginJson = await makeUser(server.baseUrl);
+            const loginJson2 = await makeUser(server.baseUrl);
+            const createdChat = await makeRequest(server.baseUrl, "messaging/createChat", {
+                title: "Hello world",
+            }, loginJson.accessToken);
+            const createdChatJson = await createdChat.json();
+            const res = await makeRequest(server.baseUrl, "messaging/updateChatInformation", {
+                chatId: createdChatJson._id,
+                title: "New Title",
+            }, loginJson.accessToken);
+            expect(res.status).toBe(200);
+            const json = await res.json();
+            expect(json.success).toBe(true);
+        });
+    });
 });
