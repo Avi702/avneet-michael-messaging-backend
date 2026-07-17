@@ -1,6 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { AuthenticationService } from "../../authentication/AuthenticationService";
 import { PublicUser } from "../../users/User.types";
+import { UnauthorizedError } from "../../shared/errors/common";
 
 declare global {
     namespace Express {
@@ -16,13 +17,16 @@ export function authenticate(authenticationService: AuthenticationService): Requ
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
             const header = req.header("Authorization");
-            if (!header?.startsWith("Bearer ")) {
-                throw new Error("No authentication token provided.");
+            console.log("header", header)
+            if (!header || !header.startsWith("Bearer ")) {
+                throw new UnauthorizedError("No authentication token provided.")
             }
             const accessToken = header.slice(7);
             const user = await authenticationService.authenticate(accessToken);
             req.user = user;
             req.actorId = user._id.toString();
+
+            next();
         }
         catch (err) {
             next(err);
