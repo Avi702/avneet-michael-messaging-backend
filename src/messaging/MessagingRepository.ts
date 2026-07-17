@@ -8,6 +8,7 @@ import { Message } from "./Message.types";
 import { UploadImageDto } from "./dto/UploadImageDto";
 import { Image } from "./Image.types";
 import { ImageModel } from "./Image.model";
+import { BadRequestError } from "../shared/errors/common";
 
 export class MessagingRepository {
     /**
@@ -106,13 +107,17 @@ export class MessagingRepository {
     }
 
     /**
-     * Gets paginated messages
+     * Gets cursor paginated messages
+     * 
+     * Use cursorDate and cursorId to specify the last known message
+     * 
+     * Both cursorDate and cursorId or neither must be supplied; BadRequestError thrown if condition violated
+     * 
      * @param chatId The ID of the chat
      * @param limit The maximum number of messages to return
      * @param cursorDate The date of the last message
      * @param cursorId The ID of the last message seen
-     * @throws Error if chat doesn't exist
-     * @throws Error if cursor message is invalid
+     * @throws BadRequestError if cursor message is invalid
      */
     public async getMessages(chatId: string, limit: number = 50, cursorDate: Date | null = null, cursorId: string | null = null): Promise<Message[]> {
         const query: any = {
@@ -121,7 +126,7 @@ export class MessagingRepository {
 
         if (cursorDate !== null || cursorId !== null) {
             if (cursorDate === null || cursorId === null) {
-                throw new Error(`Cursor message is invalid! Both cursorDate and cursorId or neither should be provided`)
+                throw new BadRequestError(`Cursor message is invalid! Both cursorDate and cursorId or neither should be provided`)
             }
 
             query.$or = [
