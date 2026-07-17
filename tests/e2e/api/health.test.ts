@@ -1,6 +1,6 @@
 import { beforeAll, afterAll, describe, beforeEach, test, expect } from "@jest/globals";
 import { createTestServer } from "../../../src/manager/createTestServer";
-import { makeRequest } from "./fetchUtility";
+import { makeRequest } from "../shared/makeRequest";
 
 let server: Awaited<ReturnType<typeof createTestServer>>;
 

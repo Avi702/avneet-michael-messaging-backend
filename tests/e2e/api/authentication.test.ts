@@ -1,6 +1,7 @@
 import { beforeAll, afterAll, describe, beforeEach, test, expect } from "@jest/globals";
 import { createTestServer } from "../../../src/manager/createTestServer";
-import { makeRequest } from "./fetchUtility";
+import { makeRequest } from "../shared/makeRequest";
+import { createTestRegistration, extractCredentials, makeUser } from "../shared/makeUser";
 
 let server: Awaited<ReturnType<typeof createTestServer>>;
 
@@ -11,31 +12,6 @@ beforeAll(async () => {
 afterAll(async () => {
     await server.manager.shutdown();
 });
-
-let testCredentialsCount = 0;
-const exampleCredentials = {
-    email: "example@example.com",
-    password: "password",
-};
-
-const exampleRegistration = {
-    ...exampleCredentials,
-    birthDate: "2000-01-01",
-    displayName: "John Doe",
-};
-function createTestRegistration() {
-    testCredentialsCount = testCredentialsCount + 1;
-    return {
-        ...exampleRegistration,
-        email: `example${testCredentialsCount}@example.com`,
-    };
-}
-function extractCredentials(registration: any): any {
-    return {
-        email: registration.email,
-        password: registration.password,
-    };
-}
 
 describe("authentication routes", () => {
     describe("login endpoint", () => {
@@ -142,21 +118,10 @@ describe("authentication routes", () => {
 
     describe("authenticate endpoint", () => {
         test("accepts valid input", async () => {
-            const registration = createTestRegistration();
-            const credentials = extractCredentials(registration);
-            // Make a user
-            await makeRequest(server.baseUrl, "authentication/register", {
-                ...registration,
-            });
-            // Login and get the token
-            const loginResult = await makeRequest(server.baseUrl, "authentication/login", {
-                ...credentials,
-            });
-            const loginJson = await loginResult.json();
-            const accessToken = loginJson.accessToken;
+            const loginJson = await makeUser(server.baseUrl);
             // Make the actual authentication test result and ensure parity
             const authenticationResult = await makeRequest(server.baseUrl, "authentication/authenticate", {
-                accessToken: accessToken,
+                accessToken: loginJson.accessToken,
             });
             expect(authenticationResult.status).toBe(200);
             const authenticationJson = await authenticationResult.json();
@@ -164,12 +129,6 @@ describe("authentication routes", () => {
         });
 
         test("rejects invalid token", async () => {
-            const registration = createTestRegistration();
-            const credentials = extractCredentials(registration);
-            // Make a user
-            await makeRequest(server.baseUrl, "authentication/register", {
-                ...registration,
-            });
             // Make the actual authentication test result and ensure parity
             const authenticationResult = await makeRequest(server.baseUrl, "authentication/authenticate", {
                 accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
@@ -191,32 +150,15 @@ describe("authentication routes", () => {
 
     describe("refresh endpoint", () => {
         test("accepts valid input", async () => {
-            const registration = createTestRegistration();
-            const credentials = extractCredentials(registration);
-            // Make a user
-            await makeRequest(server.baseUrl, "authentication/register", {
-                ...registration,
-            });
-            // Login and get the token
-            const loginResult = await makeRequest(server.baseUrl, "authentication/login", {
-                ...credentials,
-            });
-            const loginJson = await loginResult.json();
-            const refreshToken = loginJson.refreshToken;
+            const loginJson = await makeUser(server.baseUrl);
             // Make the actual authentication test result and ensure parity
             const authenticationResult = await makeRequest(server.baseUrl, "authentication/refresh", {
-                refreshToken: refreshToken,
+                refreshToken: loginJson.refreshToken,
             });
             expect(authenticationResult.status).toBe(200);
         });
 
         test("rejects invalid token", async () => {
-            const registration = createTestRegistration();
-            const credentials = extractCredentials(registration);
-            // Make a user
-            await makeRequest(server.baseUrl, "authentication/register", {
-                ...registration,
-            });
             // Make the actual authentication test result and ensure parity
             const refreshResult = await makeRequest(server.baseUrl, "authentication/refresh", {
                 refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
@@ -245,40 +187,18 @@ describe("authentication routes", () => {
         });
 
         test("rejects invalid format", async () => {
-            const registration = createTestRegistration();
-            const credentials = extractCredentials(registration);
-            // Make a user
-            await makeRequest(server.baseUrl, "authentication/register", {
-                ...registration,
-            });
-            // Login and get the token
-            const loginResult = await makeRequest(server.baseUrl, "authentication/login", {
-                ...credentials,
-            });
-            const loginJson = await loginResult.json();
-            const accessToken = loginJson.accessToken;
-            const res = await makeRequest(server.baseUrl, "authentication/updatePassword", {}, accessToken);
+            const loginJson = await makeUser(server.baseUrl);
+            const res = await makeRequest(server.baseUrl, "authentication/updatePassword", {}, loginJson.accessToken);
             expect(res.status).toBe(400);
             const json = await res.json();
             expect(json.error.code).toBe("BAD_REQUEST");
         });
 
         test("accepts valid input", async () => {
-            const registration = createTestRegistration();
-            const credentials = extractCredentials(registration);
-            // Make a user
-            await makeRequest(server.baseUrl, "authentication/register", {
-                ...registration,
-            });
-            // Login and get the token
-            const loginResult = await makeRequest(server.baseUrl, "authentication/login", {
-                ...credentials,
-            });
-            const loginJson = await loginResult.json();
-            const accessToken = loginJson.accessToken;
+            const loginJson = await makeUser(server.baseUrl);
             const updatePasswordResult = await makeRequest(server.baseUrl, "authentication/updatePassword", {
                 password: "hello world",
-            }, accessToken);
+            }, loginJson.accessToken);
             expect(updatePasswordResult.status).toBe(200);
             const updatePasswordJson = await updatePasswordResult.json();
             expect(updatePasswordJson.success).toBe(true);
