@@ -31,72 +31,97 @@ describe("UserRepository", () => {
         password: "password",
     };
 
-    test("creates a new user", async () => {
-        const user = await repository.create(GENERIC_USER_CREATION_DTO);
-        expect(user.displayName).toBe("John Doe");
-        expect(user.birthDate).toBe("2000-01-01");
-        expect(user.email).toBe("johndoe@example.com");
-        expect(user.password).toBe("password");
-    });
+    const OID_1 = new mongoose.Types.ObjectId("ffffffffffffffffffffffff");
 
-    test("finds a user by ID", async () => {
-        // Create the user
-        const user = await repository.create(GENERIC_USER_CREATION_DTO);
-        // Find it
-        const found = await repository.findById(user._id.toString());
-        expect(found?._id).toStrictEqual(user._id);
-    });
-
-    test("finds a user by email", async () => {
-        // Create the user
-        const user = await repository.create(GENERIC_USER_CREATION_DTO);
-        // Find it
-        // Find it
-        const found = await repository.findByEmail(user.email);
-        expect(found?._id).toStrictEqual(user._id);
-    });
-
-    test("determines an email is taken", async () => {
-        // Create the user
-        const user = await repository.create(GENERIC_USER_CREATION_DTO);
-        // Ensure the email appears as taken
-        expect(await repository.existsByEmail(user.email)).toBe(true);
-    });
-
-    test("determines an email is not taken", async () => {
-        expect(await repository.existsByEmail("johndoe@example.com")).toBe(false);
-    });
-
-    test("updates a profile", async () => {
-        // Create the user
-        const user = await repository.create(GENERIC_USER_CREATION_DTO);
-        // Update the user's profile
-        await repository.updateProfile(user._id.toString(), {
-            displayName: "Bob Doe",
+    describe("create method", () => {
+        test("creates a new user", async () => {
+            const user = await repository.create(GENERIC_USER_CREATION_DTO);
+            expect(user.displayName).toBe("John Doe");
+            expect(user.birthDate).toBe("2000-01-01");
+            expect(user.email).toBe("johndoe@example.com");
+            expect(user.password).toBe("password");
         });
-        // Get the user again
-        const updated = await repository.findById(user._id.toString());
-        // Check the update
-        expect(updated?.displayName).toBe("Bob Doe");
     });
 
-    test("sets whether a user is online", async () => {
-        // Create the user
-        const user = await repository.create(GENERIC_USER_CREATION_DTO);
-        // Mark the user online
-        await repository.setOnline(user._id.toString(), false);
-        // Get the user again
-        const updated = await repository.findById(user._id.toString());
-        // Check the update
-        expect(updated?.isOnline).toBe(false);
+    describe("findById method", () => {
+        test("finds a user by ID", async () => {
+            // Create the user
+            const user = await repository.create(GENERIC_USER_CREATION_DTO);
+            // Find it
+            const found = await repository.findById(user._id.toString());
+            expect(found?._id).toStrictEqual(user._id);
+        });
+
+        test("returns null for nonexistent user", async () => {
+            const found = await repository.findById(OID_1.toString());
+            expect(found).toBe(null);
+        });
     });
 
-    test("deletes a user", async () => {
-        // Create the user
-        const user = await repository.create(GENERIC_USER_CREATION_DTO);
-        // Delete the user
-        await repository.delete(user._id.toString());
-        // Ensure the user is gone
-        expect(await repository.findById(user._id.toString())).toBe(null);
+    describe("findByEmail method", () => {
+        test("finds a user by email", async () => {
+            // Create the user
+            const user = await repository.create(GENERIC_USER_CREATION_DTO);
+            // Find it
+            const found = await repository.findByEmail(GENERIC_USER_CREATION_DTO.email);
+            expect(found?._id).toStrictEqual(user._id);
+        });
+
+        test("returns null for nonexistent user", async () => {
+            const found = await repository.findById(OID_1.toString());
+            expect(found).toBe(null);
+        });
+    });
+
+    describe("existsByEmail method", () => {
+        test("returns true if user with email exists", async () => {
+            // Create the user
+            const user = await repository.create(GENERIC_USER_CREATION_DTO);
+            // Ensure the email appears as taken
+            expect(await repository.existsByEmail(user.email)).toBe(true);
+        });
+
+        test("returns false if user with email does not exist", async () => {
+            expect(await repository.existsByEmail("johndoe@example.com")).toBe(false);
+        });
+    });
+
+    describe("updateProfile method", () => {
+        test("updates a profile", async () => {
+            // Create the user
+            const user = await repository.create(GENERIC_USER_CREATION_DTO);
+            // Update the user's profile
+            await repository.updateProfile(user._id.toString(), {
+                displayName: "Bob Doe",
+            });
+            // Get the user again
+            const updated = await repository.findById(user._id.toString());
+            // Check the update
+            expect(updated?.displayName).toBe("Bob Doe");
+        });
+    });
+
+    describe("setOnline method", () => {
+        test("sets whether a user is online", async () => {
+            // Create the user
+            const user = await repository.create(GENERIC_USER_CREATION_DTO);
+            // Mark the user online
+            await repository.setOnline(user._id.toString(), false);
+            // Get the user again
+            const updated = await repository.findById(user._id.toString());
+            // Check the update
+            expect(updated?.isOnline).toBe(false);
+        });
+    });
+
+    describe("delete method", () => {
+        test("deletes a user", async () => {
+            // Create the user
+            const user = await repository.create(GENERIC_USER_CREATION_DTO);
+            // Delete the user
+            await repository.delete(user._id.toString());
+            // Ensure the user is gone
+            expect(await repository.findById(user._id.toString())).toBe(null);
+        });
     });
 });

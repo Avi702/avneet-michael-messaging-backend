@@ -28,12 +28,20 @@ describe("UserAuthorizationService", () => {
         await mongoose.connection.collection("users").deleteMany({});
     });
 
-    test("authorizes get actions", async () => {
-        expect(await authorization.authorizeAction("", "", UserAction.Get)).toBe(true);
+    describe("UserAction.Get", () => {
+        // No need for more tests, gating for get user methods is always by authentication only
+        test("always allows get", async () => {
+            expect(await authorization.authorizeAction("", "", UserAction.Get)).toBe(true);
+        });
     });
 
-    test("authorizes update actions", async () => {
-        expect(await authorization.authorizeAction("abc", "abc", UserAction.Update)).toBe(true);
-        expect(await authorization.authorizeAction("abc", "abb", UserAction.Update)).toBe(false);
+    describe("UserAction.Update", () => {
+        test("allows actor to update self", async () => {
+            expect(await authorization.authorizeAction("abc", "abc", UserAction.Update)).toBe(true);
+        });
+
+        test("prevents actor from updating others", async () => {
+            expect(await authorization.authorizeAction("abc", "abb", UserAction.Update)).toBe(false);
+        });
     });
 });
