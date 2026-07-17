@@ -1,5 +1,7 @@
 import { UnauthorizedError } from "../shared/errors/common";
 import { ChatNotFoundError, ImageNotFoundError, MessageNotFoundError } from "../shared/errors/messaging";
+import { UserNotFoundError } from "../shared/errors/users";
+import { UserRepository } from "../users/UserRepository";
 import { Chat } from "./Chat.types";
 import { CreateChatDto } from "./dto/CreateChatDto";
 import { SendMessageDto } from "./dto/SendMessageDto";
@@ -11,7 +13,11 @@ import { MessagingAction, MessagingAuthorizationService } from "./MessagingAutho
 import { MessagingRepository } from "./MessagingRepository";
 
 export class MessagingService {
-    constructor(private readonly messages: MessagingRepository, private readonly authorization: MessagingAuthorizationService) {}
+    constructor(
+        private readonly messages: MessagingRepository,
+        private readonly authorization: MessagingAuthorizationService,
+        private readonly users: UserRepository,
+    ) {}
 
     /**
      * Creates a new chat
@@ -54,6 +60,10 @@ export class MessagingService {
         if (!(await this.authorization.authorizeAction(chatId, actorId, MessagingAction.AddMember))) {
             throw new UnauthorizedError(`User is not permitted to perform this action`);
         }
+        const user = await this.users.findById(userId);
+        if (!user) {
+            throw new UserNotFoundError(userId);
+        }
         return !!(await this.messages.addMemberToChat(chatId, userId));
     }
 
@@ -69,6 +79,10 @@ export class MessagingService {
     public async removeMemberFromChat(chatId: string, actorId: string, userId: string): Promise<boolean> {
         if (!(await this.authorization.authorizeAction(chatId, actorId, MessagingAction.RemoveMember))) {
             throw new UnauthorizedError(`User is not permitted to perform this action`);
+        }
+        const user = await this.users.findById(userId);
+        if (!user) {
+            throw new UserNotFoundError(userId);
         }
         return !!(await this.messages.removeMemberFromChat(chatId, userId));
     }

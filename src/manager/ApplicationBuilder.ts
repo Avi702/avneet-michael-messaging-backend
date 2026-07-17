@@ -43,7 +43,7 @@ export class ApplicationBuilder {
         // Messaging
         const messagingRepository = new MessagingRepository();
         const messagingAuthorizationService = new MessagingAuthorizationService(messagingRepository);
-        const messagingService = new MessagingService(messagingRepository, messagingAuthorizationService);
+        const messagingService = new MessagingService(messagingRepository, messagingAuthorizationService, userRepository);
 
         // >>> API helpers
         // Users

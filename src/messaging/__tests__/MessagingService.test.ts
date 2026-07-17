@@ -6,18 +6,21 @@ import { MessagingRepository } from "../MessagingRepository";
 import { beforeAll, afterAll, describe, beforeEach, test, expect } from "@jest/globals";
 import { MessagingAuthorizationService } from "../MessagingAuthorizationService";
 import { MessagingService } from "../MessagingService";
+import { UserRepository } from "../../users/UserRepository";
 
 describe("MessagingRepository", () => {
     let mongo: MongoMemoryServer;
+    let users: UserRepository;
     let repository: MessagingRepository;
     let authorization: MessagingAuthorizationService;
     let service: MessagingService;
     beforeAll(async () => {
         mongo = await MongoMemoryServer.create();
         await mongoose.connect(mongo.getUri());
+        users = new UserRepository();
         repository = new MessagingRepository();
         authorization = new MessagingAuthorizationService(repository);
-        service = new MessagingService(repository, authorization);
+        service = new MessagingService(repository, authorization, users);
     });
     afterAll(async () => {
         await mongoose.disconnect();
@@ -34,6 +37,13 @@ describe("MessagingRepository", () => {
 
     const GENERIC_CHAT_CREATION_DTO = {
         title: "Hello",
+    };
+
+    const GENERIC_USER_CREATION_DTO = {
+        displayName: "John Doe",
+        birthDate: "2000-01-01",
+        email: "johndoe@example.com",
+        password: "password",
     };
 
     test("creates a new chat", async () => {
@@ -55,20 +65,22 @@ describe("MessagingRepository", () => {
 
     test("adds a member to a chat", async () => {
         const chat = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
-        const response = await service.addMemberToChat(chat._id.toString(), OID_1.toString(), OID_2.toString());
+        const createdUser = await users.create(GENERIC_USER_CREATION_DTO);
+        const response = await service.addMemberToChat(chat._id.toString(), OID_1.toString(), createdUser._id.toString());
         expect(response).toBe(true);
         await expect(service.addMemberToChat(chat._id.toString(), OID_2.toString(), OID_3.toString())).rejects.toThrow();
     });
 
     test("removes a member from a chat", async () => {
         const chat = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
-        const response1 = await service.addMemberToChat(chat._id.toString(), OID_1.toString(), OID_2.toString());
+        const createdUser = await users.create(GENERIC_USER_CREATION_DTO);
+        const response1 = await service.addMemberToChat(chat._id.toString(), OID_1.toString(), createdUser._id.toString());
         expect(response1).toBe(true);
         // no authorization case
         console.log(chat.owner, OID_2.toString());
-        expect(() => service.removeMemberFromChat(chat._id.toString(), OID_2.toString(), OID_1.toString())).rejects.toThrow();
+        expect(() => service.removeMemberFromChat(chat._id.toString(), OID_2.toString(), createdUser._id.toString())).rejects.toThrow();
         // success case
-        const response2 = await service.removeMemberFromChat(chat._id.toString(), OID_1.toString(), OID_2.toString());
+        const response2 = await service.removeMemberFromChat(chat._id.toString(), OID_1.toString(), createdUser._id.toString());
         expect(response2).toBe(true);
         // chat doesn't exist case
         await expect(service.removeMemberFromChat(OID_1.toString(), "-1", "-1")).rejects.toThrow();
