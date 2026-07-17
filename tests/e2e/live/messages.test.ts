@@ -85,12 +85,13 @@ describe("message:send", () => {
         const createChatJson = await createChatResult.json();
         // Add Bob to chat
         await makeRequest(server.baseUrl, "messaging/addMemberToChat", { chatId: createChatJson._id, userId: userBob.user._id.toString() }, userAlice.accessToken);
+        const promise = extractResponse(socketBob, "reply:message:send");
         // Send message as Bob; should succeed
         socketBob.emit("message:send", {
             chatId: createChatJson._id,
             textContent: "Hello world",
         });
-        const res = await extractResponse(socketBob, "reply:message:send");
+        const res = await promise;
         expect(res.success).toBe(true);
     });
 
