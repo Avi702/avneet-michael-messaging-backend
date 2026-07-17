@@ -33,6 +33,16 @@ describe("users routes", () => {
             expect(json.error.code).toBe("BAD_REQUEST");
         });
 
+        test("rejects does not exist", async () => {
+            const loginJson = await makeUser(server.baseUrl);
+            const res = await makeRequest(server.baseUrl, "users/getUser", {
+                userId: "507f191e810c19729de860ea",
+            }, loginJson.accessToken);
+            expect(res.status).toBe(404);
+            const json = await res.json();
+            expect(json.error.code).toBe("USER_NOT_FOUND");
+        });
+
         test("accepts valid input", async () => {
             const loginJson1 = await makeUser(server.baseUrl);
             const loginJson2 = await makeUser(server.baseUrl);
