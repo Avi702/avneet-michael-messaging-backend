@@ -1,4 +1,4 @@
-import { NotFoundError } from "./common";
+import { ConflictError, NotFoundError } from "./common";
 
 export class ChatNotFoundError extends NotFoundError {
     constructor(identifier: string) {
@@ -18,5 +18,26 @@ export class ImageNotFoundError extends NotFoundError {
     constructor(identifier: string) {
         super(`Image ${identifier} does not exist`);
         this.code = "IMAGE_NOT_FOUND";
+    }
+}
+
+export class UserAlreadyInChatError extends ConflictError {
+    constructor(userId: string, chatId: string) {
+        super(`User ${userId} is already in chat ${chatId}`);
+        this.code = "USER_ALREADY_IN_CHAT";
+    }
+}
+
+export class UserNotInChatError extends NotFoundError {
+    constructor(userId: string, chatId: string) {
+        super(`User ${userId} is not in chat ${chatId}`);
+        this.code = "USER_NOT_IN_CHAT";
+    }
+}
+
+export class UserOwnsChatError extends ConflictError {
+    constructor(userId: string, chatId: string) {
+        super(`User ${userId} owns chat ${chatId}`);
+        this.code = "USER_OWNS_CHAT";
     }
 }

@@ -1,5 +1,5 @@
 import { UnauthorizedError } from "../shared/errors/common";
-import { ChatNotFoundError, ImageNotFoundError, MessageNotFoundError } from "../shared/errors/messaging";
+import { ChatNotFoundError, ImageNotFoundError, MessageNotFoundError, UserAlreadyInChatError, UserNotInChatError, UserOwnsChatError } from "../shared/errors/messaging";
 import { UserNotFoundError } from "../shared/errors/users";
 import { UserRepository } from "../users/UserRepository";
 import { Chat } from "./Chat.types";
@@ -64,6 +64,16 @@ export class MessagingService {
         if (!user) {
             throw new UserNotFoundError(userId);
         }
+        const chat = await this.messages.findChatById(chatId);
+        if (!chat) {
+            throw new ChatNotFoundError(chatId);
+        }
+        if (chat.owner.toString() === userId) {
+            throw new UserOwnsChatError(userId, chatId);
+        }
+        if (chat.members.some(memberId => memberId.toString() === userId)) {
+            throw new UserAlreadyInChatError(userId, chatId);
+        }
         return !!(await this.messages.addMemberToChat(chatId, userId));
     }
 
@@ -83,6 +93,16 @@ export class MessagingService {
         const user = await this.users.findById(userId);
         if (!user) {
             throw new UserNotFoundError(userId);
+        }
+        const chat = await this.messages.findChatById(chatId);
+        if (!chat) {
+            throw new ChatNotFoundError(chatId);
+        }
+        if (chat.owner.toString() === userId) {
+            throw new UserOwnsChatError(userId, chatId);
+        }
+        if (!(chat.members.some(memberId => memberId.toString() === userId))) {
+            throw new UserNotInChatError(userId, chatId);
         }
         return !!(await this.messages.removeMemberFromChat(chatId, userId));
     }
