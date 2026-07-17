@@ -52,17 +52,19 @@ afterAll(async () => {
 
 describe("message:send", () => {
     test("rejects invalid format", async () => {
+        const promise = extractResponse(socketBob, "reply:message:send");
         socketBob.emit("message:send", {});
-        const res = await extractResponse(socketBob, "reply:message:send");
+        const res = await promise;
         expect(res.success).toBe(false);
     });
 
     test("rejects chat does not exist", async () => {
+        const promise = extractResponse(socketBob, "reply:message:send");
         socketBob.emit("message:send", {
             chatId: "",
             textContent: "Hello world",
         });
-        const res = await extractResponse(socketBob, "reply:message:send");
+        const res = await promise;
         expect(res.success).toBe(false);
     });
 
@@ -70,12 +72,13 @@ describe("message:send", () => {
         // Create chat as Alice
         const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello" }, userAlice.accessToken);
         const createChatJson = await createChatResult.json();
+        const promise = extractResponse(socketBob, "reply:message:send");
         // Send message as Bob; should fail
         socketBob.emit("message:send", {
             chatId: createChatJson._id,
             textContent: "Hello world",
         });
-        const res = await extractResponse(socketBob, "reply:message:send");
+        const res = await promise;
         expect(res.success).toBe(false);
     });
 
