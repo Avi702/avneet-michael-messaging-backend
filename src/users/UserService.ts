@@ -1,4 +1,4 @@
-import { UnauthorizedError } from "../shared/errors/common";
+import { BadRequestError, UnauthorizedError } from "../shared/errors/common";
 import { UserAlreadyExistsError, UserNotFoundError, UserNotOldEnoughError } from "../shared/errors/users";
 import type { CreateUserDto } from "./dto/CreateUserDto";
 import type { UpdateProfileDto } from "./dto/UpdateProfileDto";
@@ -16,6 +16,7 @@ export class UserService {
      * Checks whether a birth date is valid
      * @param birthDate The birth date in YYYY-MM-DD format
      * @returns Whether the user is at least MINIMUM_AGE
+     * @throws BadRequestError if the date is in invalid format
      * 
      * today is for debug only; sets the current date for reproducibility
      */
@@ -23,7 +24,7 @@ export class UserService {
         today.setUTCHours(0, 0, 0, 0);
         const [year, month, day] = birthDate.split("-").map(Number);
         if (!year || !month || !day) {
-            throw new Error(`Invalid date: YEAR:${year}, MONTH:${month}, DAY:${day}`);
+            throw new BadRequestError(`Invalid date: YEAR:${year}, MONTH:${month}, DAY:${day}`);
         }
         const userBirthDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
         const youngestBirthDateAllowed = new Date(today.getTime());
@@ -35,7 +36,7 @@ export class UserService {
      * Gets a user by ID, including all information
      * @param id The ID of the user
      * @returns The User
-     * @throws Error if user does not exist
+     * @throws UserNotFoundError if user does not exist
      */
     private async getPrivateUser(id: string): Promise<User> {
         const user = await this.users.findById(id);
@@ -52,7 +53,8 @@ export class UserService {
      * @param userId The ID of the user to get
      * @param actorId The ID of the user who is doing the getting
      * @returns The PublicUser
-     * @throws Error if action is not authorized
+     * @throws UnauthorizedError if action is not authorized
+     * @throws UserNotFoundError if user does not exist
      */
     public async getUserById(userId: string, actorId: string): Promise<PublicUser> {
         if (!(await this.authorization.authorizeAction(userId, actorId, UserAction.Get))) {
@@ -67,8 +69,8 @@ export class UserService {
      * @internal DO NOT USE THIS METHOD. Intended to be called by AuthenticationService; this writes a raw password.
      * @param data The DTO for creating a user
      * @returns A new user
-     * @throws Error if user is not at least MINIMUM_AGE years old
-     * @throws Error if user already exists with that email
+     * @throws UserNotOldEnoughError if user is not at least MINIMUM_AGE years old
+     * @throws UserAlreadyExistsError if user already exists with that email
      */
     public async createUser(data: CreateUserDto): Promise<PublicUser> {
         if (!this.birthDateIsValid(data.birthDate)) {
@@ -85,8 +87,8 @@ export class UserService {
      * Updates a user's profile
      * @param actorId The ID of the user doing the updating
      * @param data The DTO for updating a profile
-     * @throws Error if user does not exist
-     * @throws Error if action not authorized
+     * @throws UserNotFoundError if user does not exist
+     * @throws UnauthorizedError if action not authorized
      */
     public async updateProfile(actorId: string, data: UpdateProfileDto): Promise<void> {
         if (!(await this.authorization.authorizeAction(actorId, actorId, UserAction.Update))) {
