@@ -32,6 +32,13 @@ describe("MessagingRepository", () => {
         title: "Hello",
     };
 
+    const GENERIC_IMAGE_CREATION_DTO = {
+        uri: "test",
+        mimeType: "image/png",
+        originalName: "TEST_123.PNG",
+        size: 50,
+    };
+
     describe("createChat method", () => {
         test("creates a new chat", async () => {
             const chat = await repository.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
@@ -103,7 +110,7 @@ describe("MessagingRepository", () => {
             const message = await repository.sendMessage(chat._id.toString(), OID_1.toString(), {
                 textContent: "Hello world",
             });
-            const image = await repository.uploadImage(message._id.toString(), "test");
+            const image = await repository.uploadImage(message._id.toString(), GENERIC_IMAGE_CREATION_DTO);
             expect(image).not.toBe(null);
             expect(image.uri).toBe("test");
             expect(image.message.toString()).toStrictEqual(message._id.toString());
@@ -116,7 +123,7 @@ describe("MessagingRepository", () => {
             const message = await repository.sendMessage(chat._id.toString(), OID_1.toString(), {
                 textContent: "Hello world",
             });
-            const image = await repository.uploadImage(message._id.toString(), "test");
+            const image = await repository.uploadImage(message._id.toString(), GENERIC_IMAGE_CREATION_DTO);
             const found = await repository.findImageById(image._id.toString());
             expect(found).not.toBe(null);
             expect(found?.uri).toBe("test");

@@ -13,6 +13,10 @@ import { UserNotFoundError } from "../../shared/errors/users";
 import { ImageStorageService } from "../ImageStorageService";
 import { LocalImageStorageService } from "../LocalImageStorageService";
 
+import fs from "fs/promises";
+
+const IMAGE_STORAGE_DIRECTORY = "./data/images";
+
 describe("MessagingRepository", () => {
     let mongo: MongoMemoryServer;
     let users: UserRepository;
@@ -26,12 +30,14 @@ describe("MessagingRepository", () => {
         users = new UserRepository();
         repository = new MessagingRepository();
         authorization = new MessagingAuthorizationService(repository);
-        imageStorage = new LocalImageStorageService("./data/images");
+        imageStorage = new LocalImageStorageService(IMAGE_STORAGE_DIRECTORY);
         service = new MessagingService(repository, authorization, users, imageStorage);
     });
     afterAll(async () => {
         await mongoose.disconnect();
         await mongo.stop();
+        // Delete all image files
+        await fs.rm(IMAGE_STORAGE_DIRECTORY, { recursive: true, force: true });
     });
 
     beforeEach(async () => {
@@ -263,7 +269,7 @@ describe("MessagingRepository", () => {
             });
             const image = await service.uploadImage(message._id.toString(), createdUser._id.toString(), GENERIC_IMAGE_UPLOAD_INFO);
             const found = await service.getImage(image._id.toString(), createdUser._id.toString());
-            expect(found._id.toString()).toBe(image._id.toString());
+            expect(found.buffer.toString()).toBe("Hello");
         });
 
         test("rejects nonexistent image", async () => {
@@ -288,7 +294,7 @@ describe("MessagingRepository", () => {
                 size: 6,
             });
             const found = await service.getImage(image._id.toString(), createdUser2._id.toString());
-            expect(found._id.toString()).toBe(image._id.toString());
+            expect(found.buffer.toString()).toBe("Hello");
         });
 
         test("rejects unauthorized (user not in chat)", async () => {

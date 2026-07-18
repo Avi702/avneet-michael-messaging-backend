@@ -166,19 +166,22 @@ export class MessagingService {
         }
         const uri = randomUUID();
         await this.imageStorage.storeImage(uri, data);
-        return await this.messages.uploadImage(messageId, uri);
+        return await this.messages.uploadImage(messageId, {
+            uri: uri,
+            ...data,
+        });
     }
 
     /**
      * Finds an image by ID
      * @param imageId The ID of the image
      * @param actorId The ID of the user performing the action
-     * @returns An Image
+     * @returns Buffer containing the data for that image
      * @throws ImageNotFoundError if the image to retrieve does not exist
      * @throws MessageNotFoundError if the message associated with the image does not exist
      * @throws UnauthorizedError if the user is not in the chat associated with the message associated with the image
      */
-    public async getImage(imageId: string, actorId: string): Promise<Image> {
+    public async getImage(imageId: string, actorId: string): Promise<ImageFile> {
         const image = await this.messages.findImageById(imageId);
         if (!image) {
             throw new ImageNotFoundError(imageId);
@@ -190,7 +193,19 @@ export class MessagingService {
         if (!(await this.authorization.authorizeAction(message.chat._id.toString(), actorId, MessagingAction.GetImage))) {
             throw new UnauthorizedError(`User is not permitted to perform this action`);
         }
-        return image;
+        let buffer: Buffer;
+        try {
+            buffer = await this.imageStorage.getImage(image.uri);
+        }
+        catch {
+            throw new ImageNotFoundError(`(URI): "${image.uri}"`);
+        }
+        return {
+            buffer: buffer,
+            mimeType: image.mimeType,
+            originalName: image.originalName,
+            size: image.size,
+        };
     }
 
     /**

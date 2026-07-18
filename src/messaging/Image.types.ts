@@ -6,4 +6,9 @@ export interface Image {
     uri: string;
     createdAt: Date;
     message: Types.ObjectId;
+
+    // Metadata
+    mimeType: string;
+    originalName: string,
+    size: number;
 }

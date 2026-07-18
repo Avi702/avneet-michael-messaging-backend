@@ -51,8 +51,9 @@ export class MessagingController {
 
     public getImage = asyncHandler(async (req: Request, res: Response) => {
         const { imageId } = req.body;
-        const image = await this.messagingService.getImage(imageId, req.actorId);
-        res.json(image);
+        const imageData = await this.messagingService.getImage(imageId, req.actorId);
+        res.setHeader("Content-Type", imageData.mimeType);
+        res.status(200).send(imageData.buffer);
     });
 
     // Note on absence of getMessages: only available via WS
