@@ -304,8 +304,8 @@ Base URL: `/api/v1/messaging`
 | addMemberToChat | Adds a member to a Chat | ✅ |
 | removeMemberFromChat | Removes a member from a Chat | ✅ |
 | updateChatInformation | Updates information about a Chat | ✅ |
-| ⚠️ uploadImage | Uploads an image associated with a message | ✅ |
-| ⚠️ getImage | Gets an image file from storage | ✅ |
+| uploadImage | Uploads an image associated with a message | ✅ |
+| getImage | Gets an image file from storage | ✅ |
 
 ### Create Chat 🔒
 
@@ -462,26 +462,49 @@ Success will be true if the user was removed and false if the user was not in th
 | --- | --- | --- | --- |
 | ChatNotFound | 404 | CHAT_NOT_FOUND | The chat with that ID was not found |
 
-### ⚠️ Upload Image 🔒
+### Upload Image 🔒
 
 Endpoint: `POST /api/v1/messaging/uploadImage`
 
-#### ⚠️ Placeholder Endpoint
-
-Image handling has not yeet been implemented properly. Images uploaded will not be stored on the server. Additional middleware and a file storage protocol will be necessary before image support is ready.
-
 #### Authorization
-This method requires that the user sent the message associated with the image.
+This endpoint requires that the user sent the message associated with the image.
 
-#### Body
+#### ⚠️ Body
+
+This endpoint is NOT a regular JSON endpoint. You MUST use `Content-Type: multipart/form-data`.
+
+You need to include, as a field, the message with which the image is associated under `messageId`.
+
+However, all fields must be part of the form data. In frontend JavaScript, this would look like:
 ```js
-{
-    messageId: string,
-    uri: string
-}
+const form = new FormData();
+form.append("image", selectedFile);
+form.append("messageId", messageId);
+await fetch("SERVER_BASE/api/v1/messaging/uploadImage", {
+    method: "POST",
+    headers: {
+        Authorization: "Bearer JWT",
+    },
+    body: form
+});
 ```
-- Message ID must be a valid MongoDB ID. This is the ID of the message the image is attached to.
-- URI will be handled differently in the final implementation.
+And in React Native, it might look like:
+```js
+const form = new FormData();
+form.append("image", {
+    uri: image.uri,
+    type: image.mimeType,
+    name: "photo.jpg",
+});
+form.append("messageId", messageId);
+await fetch ("SERVER_BASE/api/v1/messaging/uploadImage", {
+    method: "POST",
+    headers: {
+        Authorization: "Bearer JWT",
+    },
+    body: form
+});
+```
 
 #### Responses
 If successful:
@@ -489,12 +512,17 @@ If successful:
 {
     // see src/messaging/Image.types.ts; this is an Image
     // MongoDB ID
-    _id: string;
+    _id: string,
 
-    uri: string;
-    createdAt: Date;
+    uri: string,
+    createdAt: Date,
     // MongoDB ID
-    message: string;
+    message: string,
+
+    // Computed metadata properties
+    mimeType: string,
+    originalName: string,
+    size: number
 }
 ```
 
@@ -502,13 +530,9 @@ If successful:
 | --- | --- | --- | --- |
 | MessageNotFound | 404 | MESSAGE_NOT_FOUND | The message with that ID was not found |
 
-### ⚠️ Get Image 🔒
+### Get Image 🔒
 
 Endpoint: `POST /api/v1/messaging/getImage`
-
-#### ⚠️ Placeholder Endpoint
-
-Image handling has not yeet been implemented properly. Images uploaded will not be stored on the server. Additional middleware and a file storage protocol will be necessary before image support is ready.
 
 #### Authorization
 This method requires that the user is in the chat associated with the message associated with the image. I.e., the image was uploaded in a chat the user has access to.
@@ -525,16 +549,13 @@ This method requires that the user is in the chat associated with the message as
 If successful:
 ```js
 {
-    // see src/messaging/Image.types.ts; this is an Image
-    // MongoDB ID
-    _id: string;
-
-    uri: string;
-    createdAt: Date;
-    // MongoDB ID
-    message: string;
+    buffer: Buffer,
+    mimeType: string,
+    originalName: string,
+    size: number
 }
 ```
+The actual image data is stored in the `buffer` field.
 
 | Error | Status | Code | Reason |
 | --- | --- | --- | --- |
