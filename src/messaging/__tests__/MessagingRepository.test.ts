@@ -103,9 +103,7 @@ describe("MessagingRepository", () => {
             const message = await repository.sendMessage(chat._id.toString(), OID_1.toString(), {
                 textContent: "Hello world",
             });
-            const image = await repository.uploadImage(message._id.toString(), {
-                uri: "test",
-            });
+            const image = await repository.uploadImage(message._id.toString(), "test");
             expect(image).not.toBe(null);
             expect(image.uri).toBe("test");
             expect(image.message.toString()).toStrictEqual(message._id.toString());
@@ -118,9 +116,7 @@ describe("MessagingRepository", () => {
             const message = await repository.sendMessage(chat._id.toString(), OID_1.toString(), {
                 textContent: "Hello world",
             });
-            const image = await repository.uploadImage(message._id.toString(), {
-                uri: "test",
-            });
+            const image = await repository.uploadImage(message._id.toString(), "test");
             const found = await repository.findImageById(image._id.toString());
             expect(found).not.toBe(null);
             expect(found?.uri).toBe("test");

@@ -10,12 +10,15 @@ import { UserRepository } from "../../users/UserRepository";
 import { UnauthorizedError } from "../../shared/errors/common";
 import { ChatNotFoundError, ImageNotFoundError, MessageNotFoundError, UserAlreadyInChatError, UserNotInChatError, UserOwnsChatError } from "../../shared/errors/messaging";
 import { UserNotFoundError } from "../../shared/errors/users";
+import { ImageStorageService } from "../ImageStorageService";
+import { LocalImageStorageService } from "../LocalImageStorageService";
 
 describe("MessagingRepository", () => {
     let mongo: MongoMemoryServer;
     let users: UserRepository;
     let repository: MessagingRepository;
     let authorization: MessagingAuthorizationService;
+    let imageStorage: ImageStorageService;
     let service: MessagingService;
     beforeAll(async () => {
         mongo = await MongoMemoryServer.create();
@@ -23,7 +26,8 @@ describe("MessagingRepository", () => {
         users = new UserRepository();
         repository = new MessagingRepository();
         authorization = new MessagingAuthorizationService(repository);
-        service = new MessagingService(repository, authorization, users);
+        imageStorage = new LocalImageStorageService("./data/images");
+        service = new MessagingService(repository, authorization, users, imageStorage);
     });
     afterAll(async () => {
         await mongoose.disconnect();
@@ -47,6 +51,13 @@ describe("MessagingRepository", () => {
         birthDate: "2000-01-01",
         email: "johndoe@example.com",
         password: "password",
+    };
+
+    const GENERIC_IMAGE_UPLOAD_INFO = {
+        buffer: Buffer.from("Hello"),
+        mimeType: "image/png",
+        originalName: "IMG_103.PNG",
+        size: 6,
     };
 
     describe("createChat method", () => {
@@ -220,11 +231,8 @@ describe("MessagingRepository", () => {
             const message = await service.sendMessage(chat._id.toString(), createdUser._id.toString(), {
                 textContent: "Hello",
             });
-            const image = await service.uploadImage(message._id.toString(), createdUser._id.toString(), {
-                uri: "test",
-            });
+            const image = await service.uploadImage(message._id.toString(), createdUser._id.toString(), GENERIC_IMAGE_UPLOAD_INFO);
             expect(image.message.toString()).toBe(message._id.toString());
-            expect(image.uri).toBe("test");
         });
 
         test("rejects unauthorized (not owner of message)", async () => {
@@ -237,16 +245,12 @@ describe("MessagingRepository", () => {
             const message = await service.sendMessage(chat._id.toString(), createdUser._id.toString(), {
                 textContent: "Hello",
             });
-            await expect(service.uploadImage(message._id.toString(), createdUser2._id.toString(), {
-                uri: "test",
-            })).rejects.toThrow(UnauthorizedError);
+            await expect(service.uploadImage(message._id.toString(), createdUser2._id.toString(), GENERIC_IMAGE_UPLOAD_INFO)).rejects.toThrow(UnauthorizedError);
         });
 
         test("rejects nonexistent message", async () => {
             const createdUser = await users.create(GENERIC_USER_CREATION_DTO);
-            await expect(service.uploadImage(OID_1.toString(), createdUser._id.toString(), {
-                uri: "test",
-            })).rejects.toThrow(MessageNotFoundError);
+            await expect(service.uploadImage(OID_1.toString(), createdUser._id.toString(), GENERIC_IMAGE_UPLOAD_INFO)).rejects.toThrow(MessageNotFoundError);
         });
     });
 
@@ -257,9 +261,7 @@ describe("MessagingRepository", () => {
             const message = await service.sendMessage(chat._id.toString(), createdUser._id.toString(), {
                 textContent: "hello",
             });
-            const image = await service.uploadImage(message._id.toString(), createdUser._id.toString(), {
-                uri: "test",
-            });
+            const image = await service.uploadImage(message._id.toString(), createdUser._id.toString(), GENERIC_IMAGE_UPLOAD_INFO);
             const found = await service.getImage(image._id.toString(), createdUser._id.toString());
             expect(found._id.toString()).toBe(image._id.toString());
         });
@@ -280,7 +282,10 @@ describe("MessagingRepository", () => {
                 textContent: "hello",
             });
             const image = await service.uploadImage(message._id.toString(), createdUser._id.toString(), {
-                uri: "test",
+                buffer: Buffer.from("Hello"),
+                mimeType: "image/png",
+                originalName: "IMG_103.PNG",
+                size: 6,
             });
             const found = await service.getImage(image._id.toString(), createdUser2._id.toString());
             expect(found._id.toString()).toBe(image._id.toString());
@@ -296,9 +301,7 @@ describe("MessagingRepository", () => {
             const message = await service.sendMessage(chat._id.toString(), createdUser._id.toString(), {
                 textContent: "hello",
             });
-            const image = await service.uploadImage(message._id.toString(), createdUser._id.toString(), {
-                uri: "test",
-            });
+            const image = await service.uploadImage(message._id.toString(), createdUser._id.toString(), GENERIC_IMAGE_UPLOAD_INFO);
             await expect(service.getImage(image._id.toString(), createdUser2._id.toString())).rejects.toThrow(UnauthorizedError);
         });
     });

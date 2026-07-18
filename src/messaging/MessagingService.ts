@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { UnauthorizedError } from "../shared/errors/common";
 import { ChatNotFoundError, ImageNotFoundError, MessageNotFoundError, UserAlreadyInChatError, UserNotInChatError, UserOwnsChatError } from "../shared/errors/messaging";
 import { UserNotFoundError } from "../shared/errors/users";
@@ -8,6 +9,7 @@ import { SendMessageDto } from "./dto/SendMessageDto";
 import { UpdateChatInformationDto } from "./dto/UpdateChatInformationDto";
 import { UploadImageDto } from "./dto/UploadImageDto";
 import { Image } from "./Image.types";
+import { ImageFile, ImageStorageService } from "./ImageStorageService";
 import { Message } from "./Message.types";
 import { MessagingAction, MessagingAuthorizationService } from "./MessagingAuthorizationService";
 import { MessagingRepository } from "./MessagingRepository";
@@ -17,6 +19,7 @@ export class MessagingService {
         private readonly messages: MessagingRepository,
         private readonly authorization: MessagingAuthorizationService,
         private readonly users: UserRepository,
+        private readonly imageStorage: ImageStorageService,
     ) {}
 
     /**
@@ -147,12 +150,12 @@ export class MessagingService {
      * Uploads an image
      * @param messageId The ID of the message with which the image is associated
      * @param actorId The ID of the user performing the action
-     * @param data The DTO for uploading an image
+     * @param data The image file information
      * @returns The Image created
      * @throws UnauthorizedError if the user is not the sender of the message the image should be attached to
      * @throws MessageNotFoundError if the message to be attached to does not exist
      */
-    public async uploadImage(messageId: string, actorId: string, data: UploadImageDto): Promise<Image> {
+    public async uploadImage(messageId: string, actorId: string, data: ImageFile): Promise<Image> {
         // No need to check, authorizeAction has to check and will throw MessageNotFoundError
         // const message = await this.messages.findMessageById(messageId);
         // if (!message) {
@@ -161,7 +164,9 @@ export class MessagingService {
         if (!(await this.authorization.authorizeAction(messageId, actorId, MessagingAction.UploadImage))) {
             throw new UnauthorizedError(`User is not permitted to perform this action`);
         }
-        return await this.messages.uploadImage(messageId, data);
+        const uri = randomUUID();
+        await this.imageStorage.storeImage(uri, data);
+        return await this.messages.uploadImage(messageId, uri);
     }
 
     /**

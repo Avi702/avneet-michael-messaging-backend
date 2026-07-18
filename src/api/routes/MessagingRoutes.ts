@@ -1,6 +1,7 @@
 import { AuthenticationService } from "../../authentication/AuthenticationService";
 import { MessagingController } from "../controllers/MessagingController";
 import { authenticate } from "../middleware/authenticator";
+import { uploadImage } from "../middleware/uploadImage";
 import { addMemberToChatSchema, createChatSchema, getChatSchema, getImageSchema, removeMemberFromChatSchema, updateChatInformationSchema, uploadImageSchema } from "../middleware/validators/messaging";
 import { validate } from "../middleware/validators/validate";
 import { BaseRoutes } from "./BaseRoutes";
@@ -16,7 +17,7 @@ export class MessagingRoutes extends BaseRoutes {
         this.router.post("/getChat", authenticate(this.authenticationService), validate(getChatSchema), controller.getChat);
         this.router.post("/addMemberToChat", authenticate(this.authenticationService), validate(addMemberToChatSchema), controller.addMemberToChat);
         this.router.post("/removeMemberFromChat", authenticate(this.authenticationService), validate(removeMemberFromChatSchema), controller.removeMemberFromChat);
-        this.router.post("/updateChatInformation", authenticate(this.authenticationService), validate(updateChatInformationSchema), controller.updateChatInformation);
+        this.router.post("/updateChatInformation", authenticate(this.authenticationService), uploadImage().single("image"), validate(updateChatInformationSchema), controller.updateChatInformation);
         this.router.post("/uploadImage", authenticate(this.authenticationService), validate(uploadImageSchema), controller.uploadImage);
         this.router.post("/getImage", authenticate(this.authenticationService), validate(getImageSchema), controller.getImage);
     }

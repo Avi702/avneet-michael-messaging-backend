@@ -87,12 +87,12 @@ export class MessagingRepository {
     /**
      * Uploads an image to the server
      * @param messageId The ID of the associated message
-     * @param data The DTO for uploading an image
+     * @param uri The URI of the stored image
      * @returns The created image
      */
-    public async uploadImage(messageId: string, data: UploadImageDto): Promise<Image> {
+    public async uploadImage(messageId: string, uri: string): Promise<Image> {
         return await ImageModel.create({
-            ...data,
+            uri: uri,
             message: messageId,
         });
     }

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { MessagingService } from "../../messaging/MessagingService";
 import { asyncHandler } from "./asyncHandler";
+import { BadRequestError } from "../../shared/errors/common";
 
 export class MessagingController {
     constructor(private readonly messagingService: MessagingService) {}
@@ -38,6 +39,12 @@ export class MessagingController {
 
     public uploadImage = asyncHandler(async (req: Request, res: Response) => {
         const { messageId } = req.body;
+        const file = req.file;
+
+        if (!file) {
+            throw new BadRequestError("File required for image upload");
+        }
+
         const image = await this.messagingService.uploadImage(messageId, req.actorId, req.body);
         res.json(image);
     });
