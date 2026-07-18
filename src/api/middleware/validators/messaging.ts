@@ -26,7 +26,6 @@ export const updateChatInformationSchema = z.object({
 
 export const uploadImageSchema = z.object({
     messageId: zObjectId,
-    uri: z.string(),
 });
 
 export const getImageSchema = z.object({

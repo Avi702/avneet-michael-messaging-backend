@@ -205,17 +205,10 @@ describe("messaging validator", () => {
         test("accepts valid input", () => {
             expect(uploadImageSchema.safeParse({
                 messageId: "507f1f77bcf86cd799439011",
-                uri: "test",
             }).success).toBe(true);
         });
     
         test("rejects missing field", () => {
-            expect(uploadImageSchema.safeParse({
-                messageId: "507f1f77bcf86cd799439011",
-            }).success).toBe(false);
-            expect(uploadImageSchema.safeParse({
-                uri: "test",
-            }).success).toBe(false);
             expect(uploadImageSchema.safeParse({
             }).success).toBe(false);
         });
@@ -223,22 +216,12 @@ describe("messaging validator", () => {
         test("rejects wrong type", () => {
             expect(uploadImageSchema.safeParse({
                 messageId: 3,
-                uri: "test",
-            }).success).toBe(false);
-            expect(uploadImageSchema.safeParse({
-                messageId: "507f1f77bcf86cd799439011",
-                uri: 3,
-            }).success).toBe(false);
-            expect(uploadImageSchema.safeParse({
-                messageId: 3,
-                uri: 3,
             }).success).toBe(false);
         });
         
         test("rejects bad object ID", () => {
             expect(uploadImageSchema.safeParse({
                 messageId: "jwo",
-                uri: "test",
             }).success).toBe(false);
         });
     });
