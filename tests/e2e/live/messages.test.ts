@@ -118,3 +118,57 @@ describe("message:send", () => {
         expect(res.message.textContent).toBe("Hello world");
     });
 });
+
+describe("message:get", () => {
+    test("rejects invalid format", async () => {
+        const promise = extractResponse(socketBob, "reply:message:get");
+        socketBob.emit("message:get", {});
+        const res = await promise;
+        expect(res.success).toBe(false);
+    });
+
+    test("rejects chat does not exist", async () => {
+        const promise = extractResponse(socketBob, "reply:message:get");
+        socketBob.emit("message:get", {
+            chatId: "",
+        });
+        const res = await promise;
+        expect(res.success).toBe(false);
+    });
+
+    test("rejects not in chat", async () => {
+        // Create chat as Alice
+        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello" }, userAlice.accessToken);
+        const createChatJson = await createChatResult.json();
+        const promise = extractResponse(socketBob, "reply:message:get");
+        // Get messages as Bob; should fail
+        socketBob.emit("message:get", {
+            chatId: createChatJson._id,
+        });
+        const res = await promise;
+        expect(res.success).toBe(false);
+    });
+
+    test("successfully gets message", async () => {
+        // This only tests communication of the message
+        // Intended behavior (pagination, etc.) is tested in unit testing
+        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello" }, userAlice.accessToken);
+        const createChatJson = await createChatResult.json();
+        // Add Bob
+        await makeRequest(server.baseUrl, "messaging/addMemberToChat", { chatId: createChatJson._id, userId: userBob.user._id.toString() }, userAlice.accessToken);
+        // Send a message as Alice
+        socketAlice.emit("message:send", {
+            chatId: createChatJson._id,
+            textContent: "Hello world",
+        });
+        const promise = extractResponse(socketBob, "reply:message:get");
+        // Get messages as Bob; should fail
+        socketBob.emit("message:get", {
+            chatId: createChatJson._id,
+        });
+        const res = await promise;
+        expect(res.success).toBe(true);
+        expect(res.messages.length).toBe(1);
+        expect(res.messages[0].textContent).toBe("Hello world");
+    });
+});
