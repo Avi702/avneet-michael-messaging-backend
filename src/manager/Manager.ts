@@ -1,6 +1,6 @@
 import { VARIABLES } from "../config/environment";
 import { Application } from "./Application";
-import { ApplicationBuilder } from "./ApplicationBuilder";
+import { ApplicationBuilder, ApplicationBuilderConfig } from "./ApplicationBuilder";
 import { Database, DatabaseConfig } from "./Database";
 
 export class Manager {
@@ -23,11 +23,11 @@ export class Manager {
     /**
      * Creates the application
      */
-    public initializeApplication() {
+    public initializeApplication(config: ApplicationBuilderConfig) {
         if (!this.databaseInitialized) {
             throw new Error("Must initialize database before creating application");
         }
-        this.application = this.applicationBuilder.buildApplication();
+        this.application = this.applicationBuilder.buildApplication(config);
     }
 
     /**

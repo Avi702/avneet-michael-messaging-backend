@@ -22,6 +22,11 @@ import { UserRepository } from "../users/UserRepository";
 import { UserService } from "../users/UserService";
 import { Application } from "./Application";
 import { HealthRoutes } from "../api/routes/HealthRoutes";
+import { LocalImageStorageService } from "../messaging/LocalImageStorageService";
+
+export interface ApplicationBuilderConfig {
+    imageStorageDirectory: string;
+}
 
 export class ApplicationBuilder {
     /**
@@ -30,7 +35,7 @@ export class ApplicationBuilder {
      * Precondition: database initialized
      * @returns A new Application instance
      */
-    public buildApplication(): Application {
+    public buildApplication(config: ApplicationBuilderConfig): Application {
         // >>> Database
         // Users
         const userRepository = new UserRepository();
@@ -43,7 +48,8 @@ export class ApplicationBuilder {
         // Messaging
         const messagingRepository = new MessagingRepository();
         const messagingAuthorizationService = new MessagingAuthorizationService(messagingRepository);
-        const messagingService = new MessagingService(messagingRepository, messagingAuthorizationService, userRepository);
+        const imageStorageService = new LocalImageStorageService(config.imageStorageDirectory);
+        const messagingService = new MessagingService(messagingRepository, messagingAuthorizationService, userRepository, imageStorageService);
 
         // >>> API helpers
         // Users

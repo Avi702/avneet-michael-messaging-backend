@@ -23,7 +23,9 @@ export async function createTestServer(): Promise<TestServerSpecification> {
         uri: undefined
     });
 
-    manager.initializeApplication();
+    manager.initializeApplication({
+        imageStorageDirectory: "./data/images",
+    });
 
     const port = await manager.listen(0);
 
