@@ -27,5 +27,5 @@ export const VARIABLES = {
     port: parseInt(process.env.PORT as string) ?? 3000, // Default to port 3000 for listening
 
     // Image storage
-    imageStorageDirectory: process.env.IMAGE_STORAGE_DIRECTORY, // Where the images go
+    imageStorageDirectory: process.env.IMAGE_STORAGE_DIRECTORY as string, // Where the images go
 };
