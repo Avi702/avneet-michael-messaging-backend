@@ -10,6 +10,8 @@ For information about the structure and modules, see [architecture.md](docs/arch
 
 For usage specifications, see [the HTTP API specification](docs/api.md) and [the socket.IO specification](docs/sockets.md).
 
+For information about testing, see [testing.md](docs/testing.md).
+
 ## Get Started
 
 The backend exposes different servers for different use cases.
