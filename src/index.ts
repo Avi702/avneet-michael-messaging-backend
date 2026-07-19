@@ -11,6 +11,8 @@ import { Manager } from "./manager/Manager";
         useMemoryServer: (VARIABLES.env !== "production" && VARIABLES.env !== "development"),
         uri: VARIABLES.mongoDbUri,
     });
-    manager.initializeApplication();
+    manager.initializeApplication({
+        imageStorageDirectory: VARIABLES.imageStorageDirectory,
+    });
     manager.listen();
 })();
