@@ -560,6 +560,7 @@ The actual image data is stored in the `buffer` field.
 | Error | Status | Code | Reason |
 | --- | --- | --- | --- |
 | ImageNotFound | 404 | IMAGE_NOT_FOUND | The image with that ID was not found |
+| MessageNotFound | 404 | MESSAGE_NOT_FOUND | The message corresponding to the image was not found |
 
 ## Status
 
