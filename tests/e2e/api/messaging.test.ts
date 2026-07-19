@@ -254,7 +254,6 @@ describe("messaging routes", () => {
 
         test("accepts valid input", async () => {
             const loginJson = await makeUser(server.baseUrl);
-            const loginJson2 = await makeUser(server.baseUrl);
             const createdChat = await makeRequest(server.baseUrl, "messaging/createChat", {
                 title: "Hello world",
             }, loginJson.accessToken);
@@ -268,4 +267,7 @@ describe("messaging routes", () => {
             expect(json.success).toBe(true);
         });
     });
+
+    // Testing uploadImage requires sending a message, which is only available via the Socket.IO API
+    // Thus tests for uploadImage and getImage are located in the live e2e test folder
 });
