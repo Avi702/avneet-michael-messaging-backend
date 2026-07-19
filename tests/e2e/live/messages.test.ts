@@ -12,6 +12,11 @@ let socketBob: Socket;
 let userAlice: LoginResult;
 let socketAlice: Socket;
 
+const randomBuffer = new Uint8Array(1024).fill(99);
+const randomImageFile = new File([randomBuffer], "fake.png", {
+    type: "image/png",
+});
+
 beforeAll(async () => {
     server = await createTestServer();
     userBob = await makeUser(server.baseUrl);
@@ -106,13 +111,15 @@ describe("message:send", () => {
         await makeRequest(server.baseUrl, "messaging/addMemberToChat", { chatId: createChatJson._id, userId: userBob.user._id.toString() }, userAlice.accessToken);
         // Subscribe Alice to the chat's live messages
         socketAlice.emit("chat:open", { chatId: createChatJson._id });
-        const promise = extractResponse(socketAlice, "message:new");
+        const aliceReceivePromise = extractResponse(socketAlice, "message:new");
+        const bobSendPromise = extractResponse(socketBob, "reply:message:send");
         // Send message as Bob; should succeed
         socketBob.emit("message:send", {
             chatId: createChatJson._id,
             textContent: "Hello world",
         });
-        const res = await promise;
+        await bobSendPromise;
+        const res = await aliceReceivePromise;
         expect(res.success).toBe(true);
         expect(res.message.sender).toStrictEqual(userBob.user._id.toString());
         expect(res.message.textContent).toBe("Hello world");
@@ -172,3 +179,151 @@ describe("message:get", () => {
         expect(res.messages[0].textContent).toBe("Hello world");
     });
 });
+
+describe("image uploading", () => {
+    test("rejects nonexistent message", async () => {
+        const form = new FormData();
+        form.append("image", randomImageFile);
+        form.append("messageId", "507f191e810c19729de860ea");
+        const res = await makeRequest(server.baseUrl, "messaging/uploadImage", form, userBob.accessToken, null);
+        expect(res.status).toBe(404);
+        const json = await res.json();
+        console.log("error: ", JSON.stringify(json));
+        expect(json.error.code).toBe("MESSAGE_NOT_FOUND");
+    });
+
+    test("rejects invalid format", async () => {
+        const form = new FormData();
+        form.append("image", randomImageFile);
+        const res = await makeRequest(server.baseUrl, "messaging/uploadImage", form, userBob.accessToken, null);
+        expect(res.status).toBe(400);
+        const json = await res.json();
+        expect(json.error.code).toBe("BAD_REQUEST");
+    });
+
+    test("rejects not owner of message", async () => {
+        // Create chat as Alice
+        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello" }, userAlice.accessToken);
+        const createChatJson = await createChatResult.json();
+        // Add Bob to chat
+        await makeRequest(server.baseUrl, "messaging/addMemberToChat", { chatId: createChatJson._id, userId: userBob.user._id.toString() }, userAlice.accessToken);
+        // Send message as Alice
+        const promise = extractResponse(socketAlice, "reply:message:send");
+        socketAlice.emit("message:send", {
+            chatId: createChatJson._id,
+            textContent: "test",
+        });
+        const sendMessageResponse = await promise;
+        // Upload image as Bob
+        const form = new FormData();
+        form.append("image", randomImageFile);
+        form.append("messageId", sendMessageResponse.message._id);
+        const res = await makeRequest(server.baseUrl, "messaging/uploadImage", form, userBob.accessToken, null);
+        expect(res.status).toBe(401);
+        const json = await res.json();
+        expect(json.error.code).toBe("UNAUTHORIZED");
+    });
+
+    test("accepts valid input", async () => {
+        // Create chat as Alice
+        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello" }, userAlice.accessToken);
+        const createChatJson = await createChatResult.json();
+        // Add Bob to chat
+        await makeRequest(server.baseUrl, "messaging/addMemberToChat", { chatId: createChatJson._id, userId: userBob.user._id.toString() }, userAlice.accessToken);
+        // Send message as Alice
+        const promise = extractResponse(socketAlice, "reply:message:send");
+        socketAlice.emit("message:send", {
+            chatId: createChatJson._id,
+            textContent: "test",
+        });
+        const sendMessageResponse = await promise;
+        // Upload image as Alice
+        const form = new FormData();
+        form.append("image", randomImageFile);
+        form.append("messageId", sendMessageResponse.message._id);
+        const res = await makeRequest(server.baseUrl, "messaging/uploadImage", form, userAlice.accessToken, null);
+        expect(res.status).toBe(200);
+        const json = await res.json();
+        expect(json.message).toBe(sendMessageResponse.message._id);
+    });
+});
+
+describe("image getting", () => {
+    test("rejects unauthorized", async () => {
+        const res = await makeRequest(server.baseUrl, "messaging/getImage", {
+            imageId: "507f191e810c19729de860ea",
+        });
+        expect(res.status).toBe(401);
+        const json = await res.json();
+        expect(json.error.code).toBe("UNAUTHORIZED");
+    });
+
+    test("rejects nonexistent image", async () => {
+        const res = await makeRequest(server.baseUrl, "messaging/getImage", {
+            imageId: "507f191e810c19729de860ea",
+        }, userBob.accessToken);
+        expect(res.status).toBe(404);
+        const json = await res.json();
+        expect(json.error.code).toBe("IMAGE_NOT_FOUND");
+    });
+
+    test("rejects invalid format", async () => {
+        const res = await makeRequest(server.baseUrl, "messaging/getImage", {
+            imageId: "",
+        }, userBob.accessToken);
+        expect(res.status).toBe(400);
+        const json = await res.json();
+        expect(json.error.code).toBe("BAD_REQUEST");
+    });
+
+    test("rejects not in chat", async () => {
+        // Create chat as Alice
+        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello" }, userAlice.accessToken);
+        const createChatJson = await createChatResult.json();
+        // Send message as Alice
+        const promise = extractResponse(socketAlice, "reply:message:send");
+        socketAlice.emit("message:send", {
+            chatId: createChatJson._id,
+            textContent: "test",
+        });
+        const sendMessageResponse = await promise;
+        // Upload image as Alice
+        const form = new FormData();
+        form.append("image", randomImageFile);
+        form.append("messageId", sendMessageResponse.message._id);
+        const uploadImageResult = await makeRequest(server.baseUrl, "messaging/uploadImage", form, userAlice.accessToken, null);
+        const uploadImageJson = await uploadImageResult.json();
+        // Get image as Bob
+        const res = await makeRequest(server.baseUrl, "messaging/getImage", { imageId: uploadImageJson._id }, userBob.accessToken);
+        expect(res.status).toBe(401);
+        const json = await res.json();
+        expect(json.error.code).toBe("UNAUTHORIZED");
+    });
+
+    test("accepts valid input", async () => {
+        // Create chat as Alice
+        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello" }, userAlice.accessToken);
+        const createChatJson = await createChatResult.json();
+        // Add Bob to chat
+        await makeRequest(server.baseUrl, "messaging/addMemberToChat", { chatId: createChatJson._id, userId: userBob.user._id.toString() }, userAlice.accessToken);
+        // Send message as Alice
+        const promise = extractResponse(socketAlice, "reply:message:send");
+        socketAlice.emit("message:send", {
+            chatId: createChatJson._id,
+            textContent: "test",
+        });
+        const sendMessageResponse = await promise;
+        // Upload image as Alice
+        const form = new FormData();
+        form.append("image", randomImageFile);
+        form.append("messageId", sendMessageResponse.message._id);
+        const uploadImageResult = await makeRequest(server.baseUrl, "messaging/uploadImage", form, userAlice.accessToken, null);
+        const uploadImageJson = await uploadImageResult.json();
+        // Get image as Bob
+        const res = await makeRequest(server.baseUrl, "messaging/getImage", { imageId: uploadImageJson._id }, userBob.accessToken);
+        expect(res.status).toBe(200);
+        const arrayBuffer = await res.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        expect(buffer).toStrictEqual(Buffer.from(randomBuffer));
+    });
+})
