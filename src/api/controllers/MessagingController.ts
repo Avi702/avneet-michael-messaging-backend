@@ -45,7 +45,12 @@ export class MessagingController {
             throw new BadRequestError("File required for image upload");
         }
 
-        const image = await this.messagingService.uploadImage(messageId, req.actorId, req.body);
+        const image = await this.messagingService.uploadImage(messageId, req.actorId, {
+            buffer: file.buffer,
+            mimeType: file.mimetype,
+            originalName: file.originalname,
+            size: file.size,
+        });
         res.json(image);
     });
 
