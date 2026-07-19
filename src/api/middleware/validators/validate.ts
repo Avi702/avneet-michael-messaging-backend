@@ -7,7 +7,7 @@ export function validate(schema: z.ZodType): RequestHandler {
         const result = schema.safeParse(req.body);
 
         if (!result.success) {
-            next(new BadRequestError(`Issues with request schema: ${result.error.issues}`));
+            next(new BadRequestError(`Issues with request schema: ${JSON.stringify(result.error.issues)}`));
         }
 
         req.body = result.data;
