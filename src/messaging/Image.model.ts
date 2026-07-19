@@ -16,6 +16,18 @@ const imageSchema = new Schema<Image>({
         required: true,
         ref: "Message",
     },
+    mimeType: {
+        type: String,
+        required: true,
+    },
+    originalName: {
+        type: String,
+        required: true,
+    },
+    size: {
+        type: Number,
+        required: true,
+    },
 });
 
 export const ImageModel = model<Image>(
