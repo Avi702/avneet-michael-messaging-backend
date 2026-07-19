@@ -54,6 +54,10 @@ Port is the port on which the HTTP server will listen. It is not required and de
 
 The URI for the MongoDB connection. This is needed unless in testing mode.
 
+#### IMAGE_STORAGE_DIRECTORY (required)
+
+The directory where stored images (uploaded via multer to a message in a chat) are stored.
+
 ## Building
 
 Before starting a server, the code must be compiled into JavaScript from its TypeScript source.
