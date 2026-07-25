@@ -17,6 +17,11 @@ export class MessagingController {
         res.json(response);
     });
 
+    public getChats = asyncHandler(async (req: Request, res: Response) => {
+        const response = await this.messagingService.getChats(req.actorId);
+        res.json(response);
+    });
+
     public addMemberToChat = asyncHandler(async (req: Request, res: Response) => {
         const { chatId, userId } = req.body;
         const response = await this.messagingService.addMemberToChat(chatId, req.actorId, userId);

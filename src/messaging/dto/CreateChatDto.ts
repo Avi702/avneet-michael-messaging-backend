@@ -1,3 +1,3 @@
 import { Chat } from "../Chat.types";
 
-export type CreateChatDto = Pick<Chat, "title">;
+export type CreateChatDto = Partial<Pick<Chat, "title">> & Pick<Chat, "members">;

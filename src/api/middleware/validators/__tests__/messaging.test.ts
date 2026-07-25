@@ -5,18 +5,40 @@ describe("messaging validator", () => {
     describe("createChatSchema", () => {
         test("accepts valid input", () => {
             expect(createChatSchema.safeParse({
-                title: "my chat"
+                title: "my chat",
+                members: ["507f191e810c19729de860ea"],
             }).success).toBe(true);
         });
-    
+
+        test("accepts missing title", () => {
+            expect(createChatSchema.safeParse({
+                members: ["507f191e810c19729de860ea"],
+            }).success).toBe(true);
+        });
+
         test("rejects bad data type", () => {
             expect(createChatSchema.safeParse({
-                title: 3
+                title: 3,
+                members: ["507f191e810c19729de860ea"],
             }).success).toBe(false);
         });
-    
+
         test("rejects missing field", () => {
             expect(createChatSchema.safeParse({
+            }).success).toBe(false);
+        });
+
+        test("rejects empty members", () => {
+            expect(createChatSchema.safeParse({
+                title: "my chat",
+                members: [],
+            }).success).toBe(false);
+        });
+
+        test("rejects invalid member id", () => {
+            expect(createChatSchema.safeParse({
+                title: "my chat",
+                members: ["not-an-id"],
             }).success).toBe(false);
         });
     

@@ -301,6 +301,7 @@ Base URL: `/api/v1/messaging`
 | --- | --- | --- |
 | createChat | Creates a new Chat (group chat) | ✅ |
 | getChat | Gets information about a Chat | ✅ |
+| getChats | Gets all Chats the user is a part of | ✅ |
 | addMemberToChat | Adds a member to a Chat | ✅ |
 | removeMemberFromChat | Removes a member from a Chat | ✅ |
 | updateChatInformation | Updates information about a Chat | ✅ |
@@ -314,10 +315,15 @@ Endpoint: `POST /api/v1/messaging/createChat`
 #### Body
 ```js
 {
-    title: string
+    title?: string,
+    members: string[]
 }
 ```
-- Title must be between 3 and 64 characters (inclusive).
+- Title is optional. If provided, it must be between 3 and 64 characters (inclusive). If omitted, it defaults to `Untitled Chat`.
+- Members must be an array of at least one valid MongoDB ID. These are the users added to the Chat on creation (the owner is tracked separately and is not included in `members`).
+- The owner is removed from `members` and duplicates are ignored. After this, at least one member other than the owner must remain.
+- Every member must be an existing user.
+- A Chat with the same set of participants (owner and members) may not already exist.
 
 #### Responses
 If successful:
@@ -333,7 +339,12 @@ If successful:
     members: string[];
 }
 ```
-There should be no additional failures for this route unless the user is not logged in.
+Failures may return:
+| Error | Status | Code | Reason |
+| --- | --- | --- | --- |
+| BadRequest | 400 | BAD_REQUEST | No members other than the owner were provided |
+| UserNotFound | 404 | USER_NOT_FOUND | One of the members does not exist |
+| ChatAlreadyExists | 409 | CHAT_ALREADY_EXISTS | A chat with the same participants already exists |
 
 ### Get Chat 🔒
 
@@ -367,6 +378,34 @@ If successful:
 | Error | Status | Code | Reason |
 | --- | --- | --- | --- |
 | ChatNotFound | 404 | CHAT_NOT_FOUND | The chat with that ID was not found |
+
+### Get Chats 🔒
+
+Endpoint: `POST /api/v1/messaging/getChats`
+
+#### Authorization
+This method returns only the Chats the logged in user is a part of (as the owner or as a member).
+
+#### Body
+No body is necessary.
+
+#### Responses
+If successful:
+```js
+[
+    // see src/messaging/Chat.types.ts; this is an array of Chats
+    {
+        _id: string; // Mongoose ObjectID
+
+        title: string;
+        createdAt: Date;
+        // Mongoose ObjectIDs
+        owner: string;
+        members: string[];
+    }
+]
+```
+There should be no additional failures for this route unless the user is not logged in. If the user is not a part of any Chats, an empty array is returned.
 
 ### Add Member to Chat 🔒
 

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { UnauthorizedError } from "../shared/errors/common";
-import { ChatNotFoundError, ImageNotFoundError, MessageNotFoundError, UserAlreadyInChatError, UserNotInChatError, UserOwnsChatError } from "../shared/errors/messaging";
+import { BadRequestError, UnauthorizedError } from "../shared/errors/common";
+import { ChatAlreadyExistsError, ChatNotFoundError, ImageNotFoundError, MessageNotFoundError, UserAlreadyInChatError, UserNotInChatError, UserOwnsChatError } from "../shared/errors/messaging";
 import { UserNotFoundError } from "../shared/errors/users";
 import { UserRepository } from "../users/UserRepository";
 import { Chat } from "./Chat.types";
@@ -26,9 +26,37 @@ export class MessagingService {
      * Creates a new chat
      * @param actorId The ID of the user performing the action
      * @param data The DTO for creating a chat
+     * @throws BadRequestError if no members remain after removing the owner
+     * @throws UserNotFoundError if any of the members does not exist
+     * @throws ChatAlreadyExistsError if a chat with the same participants already exists
      */
     public async createChat(actorId: string, data: CreateChatDto): Promise<Chat> {
-        return await this.messages.createChat(actorId, data);
+        // Remove duplicates and the owner (who is tracked separately, not a member)
+        const seen = new Set<string>();
+        const members = data.members.filter(member => {
+            const memberId = member.toString();
+            if (memberId === actorId || seen.has(memberId)) {
+                return false;
+            }
+            seen.add(memberId);
+            return true;
+        });
+        if (members.length < 1) {
+            throw new BadRequestError(`A chat must be created with at least one member other than the owner`);
+        }
+        // Every member must be a real user
+        for (const member of members) {
+            const user = await this.users.findById(member.toString());
+            if (!user) {
+                throw new UserNotFoundError(member.toString());
+            }
+        }
+        // A chat with the same set of participants (owner and members) may not already exist
+        const existing = await this.messages.findChatByParticipants([actorId, ...members.map(member => member.toString())]);
+        if (existing) {
+            throw new ChatAlreadyExistsError(existing._id.toString());
+        }
+        return await this.messages.createChat(actorId, { ...data, members });
     }
 
     /**
@@ -48,6 +76,15 @@ export class MessagingService {
             throw new ChatNotFoundError(chatId);
         }
         return chat;
+    }
+
+    /**
+     * Finds all chats the user is a part of (as owner or member)
+     * @param actorId The ID of the user performing the action
+     * @returns Promise for an array of the user's Chats
+     */
+    public async getChats(actorId: string): Promise<Chat[]> {
+        return await this.messages.findChatsByUser(actorId);
     }
 
     /**

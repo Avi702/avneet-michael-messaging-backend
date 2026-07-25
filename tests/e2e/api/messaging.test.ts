@@ -35,8 +35,10 @@ describe("messaging routes", () => {
 
         test("accepts valid input", async () => {
             const loginJson = await makeUser(server.baseUrl);
+            const member = await makeUser(server.baseUrl);
             const res = await makeRequest(server.baseUrl, "messaging/createChat", {
-                title: "Hello"
+                title: "Hello",
+                members: [member.user._id.toString()],
             }, loginJson.accessToken);
             expect(res.status).toBe(200);
             const json = await res.json();
@@ -76,8 +78,10 @@ describe("messaging routes", () => {
 
         test("accepts valid input", async () => {
             const loginJson = await makeUser(server.baseUrl);
+            const member = await makeUser(server.baseUrl);
             const created = await makeRequest(server.baseUrl, "messaging/createChat", {
-                title: "Hello"
+                title: "Hello",
+                members: [member.user._id.toString()],
             }, loginJson.accessToken);
             const createdJson = await created.json();
             const res = await makeRequest(server.baseUrl, "messaging/getChat", {
@@ -123,8 +127,10 @@ describe("messaging routes", () => {
 
         test("rejects user does not exist", async () => {
             const loginJson = await makeUser(server.baseUrl);
+            const member = await makeUser(server.baseUrl);
             const createdChat = await makeRequest(server.baseUrl, "messaging/createChat", {
                 title: "Hello world",
+                members: [member.user._id.toString()],
             }, loginJson.accessToken);
             const createdChatJson = await createdChat.json();
             const res = await makeRequest(server.baseUrl, "messaging/addMemberToChat", {
@@ -139,8 +145,10 @@ describe("messaging routes", () => {
         test("accepts valid input", async () => {
             const loginJson = await makeUser(server.baseUrl);
             const loginJson2 = await makeUser(server.baseUrl);
+            const member = await makeUser(server.baseUrl);
             const createdChat = await makeRequest(server.baseUrl, "messaging/createChat", {
                 title: "Hello world",
+                members: [member.user._id.toString()],
             }, loginJson.accessToken);
             const createdChatJson = await createdChat.json();
             const res = await makeRequest(server.baseUrl, "messaging/addMemberToChat", {
@@ -187,8 +195,10 @@ describe("messaging routes", () => {
 
         test("rejects user does not exist", async () => {
             const loginJson = await makeUser(server.baseUrl);
+            const member = await makeUser(server.baseUrl);
             const createdChat = await makeRequest(server.baseUrl, "messaging/createChat", {
                 title: "Hello world",
+                members: [member.user._id.toString()],
             }, loginJson.accessToken);
             const createdChatJson = await createdChat.json();
             const res = await makeRequest(server.baseUrl, "messaging/removeMemberFromChat", {
@@ -203,8 +213,10 @@ describe("messaging routes", () => {
         test("accepts valid input", async () => {
             const loginJson = await makeUser(server.baseUrl);
             const loginJson2 = await makeUser(server.baseUrl);
+            const member = await makeUser(server.baseUrl);
             const createdChat = await makeRequest(server.baseUrl, "messaging/createChat", {
                 title: "Hello world",
+                members: [member.user._id.toString()],
             }, loginJson.accessToken);
             const createdChatJson = await createdChat.json();
             await makeRequest(server.baseUrl, "messaging/addMemberToChat", {
@@ -254,8 +266,10 @@ describe("messaging routes", () => {
 
         test("accepts valid input", async () => {
             const loginJson = await makeUser(server.baseUrl);
+            const member = await makeUser(server.baseUrl);
             const createdChat = await makeRequest(server.baseUrl, "messaging/createChat", {
                 title: "Hello world",
+                members: [member.user._id.toString()],
             }, loginJson.accessToken);
             const createdChatJson = await createdChat.json();
             const res = await makeRequest(server.baseUrl, "messaging/updateChatInformation", {

@@ -2,7 +2,8 @@ import { z } from "zod";
 import { zObjectId } from "../../../shared/validators/zObjectId";
 
 export const createChatSchema = z.object({
-    title: z.string().min(3).max(64),
+    title: z.string().min(3).max(64).optional(),
+    members: z.array(zObjectId).min(1),
 });
 
 export const getChatSchema = z.object({

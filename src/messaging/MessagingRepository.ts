@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { ChatModel } from "./Chat.model";
 import { Chat } from "./Chat.types";
 import { CreateChatDto } from "./dto/CreateChatDto";
@@ -27,6 +28,37 @@ export class MessagingRepository {
      */
     public async findChatById(chatId: string): Promise<Chat | null> {
         return await ChatModel.findOne({ _id: chatId }).lean().exec();
+    }
+
+    /**
+     * Finds all chats a user is a part of (as owner or member)
+     * @param userId The ID of the user
+     * @returns An array of Chats the user is a part of
+     */
+    public async findChatsByUser(userId: string): Promise<Chat[]> {
+        return await ChatModel.find({
+            $or: [
+                { owner: userId },
+                { members: userId },
+            ],
+        }).lean().exec();
+    }
+
+    /**
+     * Finds a chat whose participants (owner and members) are exactly the given set
+     * @param participantIds The IDs of the participants (owner included), order independent
+     * @returns The matching Chat if found, else null
+     */
+    public async findChatByParticipants(participantIds: string[]): Promise<Chat | null> {
+        const participants = participantIds.map(id => new Types.ObjectId(id));
+        return await ChatModel.findOne({
+            $expr: {
+                $setEquals: [
+                    { $setUnion: [["$owner"], "$members"] },
+                    participants,
+                ],
+            },
+        }).lean().exec();
     }
 
     /**

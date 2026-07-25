@@ -7,8 +7,9 @@ import { beforeAll, afterAll, describe, beforeEach, test, expect } from "@jest/g
 import { MessagingAuthorizationService } from "../MessagingAuthorizationService";
 import { MessagingService } from "../MessagingService";
 import { UserRepository } from "../../users/UserRepository";
-import { UnauthorizedError } from "../../shared/errors/common";
-import { ChatNotFoundError, ImageNotFoundError, MessageNotFoundError, UserAlreadyInChatError, UserNotInChatError, UserOwnsChatError } from "../../shared/errors/messaging";
+import { UserModel } from "../../users/User.model";
+import { BadRequestError, UnauthorizedError } from "../../shared/errors/common";
+import { ChatAlreadyExistsError, ChatNotFoundError, ImageNotFoundError, MessageNotFoundError, UserAlreadyInChatError, UserNotInChatError, UserOwnsChatError } from "../../shared/errors/messaging";
 import { UserNotFoundError } from "../../shared/errors/users";
 import { ImageStorageService } from "../ImageStorageService";
 import { LocalImageStorageService } from "../LocalImageStorageService";
@@ -42,6 +43,14 @@ describe("MessagingRepository", () => {
 
     beforeEach(async () => {
         await mongoose.connection.db?.dropDatabase();
+        // The fixture chat is created with OID_2 as a member, so that user must exist
+        await UserModel.create({
+            _id: OID_2,
+            displayName: "Member Two",
+            birthDate: "2000-01-01",
+            email: "member2@example.com",
+            password: "password",
+        });
     });
 
     const OID_1 = new mongoose.Types.ObjectId("ffffffffffffffffffffffff");
@@ -50,6 +59,7 @@ describe("MessagingRepository", () => {
 
     const GENERIC_CHAT_CREATION_DTO = {
         title: "Hello",
+        members: [OID_2],
     };
 
     const GENERIC_USER_CREATION_DTO = {
@@ -71,7 +81,50 @@ describe("MessagingRepository", () => {
             const chat = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
             expect(chat.owner).toStrictEqual(OID_1);
             expect(chat.title).toBe("Hello");
-            expect(chat.members).toEqual([]);
+            expect(chat.members).toEqual([OID_2]);
+        });
+
+        test("removes the owner from the members", async () => {
+            const chat = await service.createChat(OID_1.toString(), {
+                title: "Hello",
+                members: [OID_1, OID_2],
+            });
+            expect(chat.members).toEqual([OID_2]);
+        });
+
+        test("rejects a chat with no members other than the owner", async () => {
+            await expect(service.createChat(OID_1.toString(), {
+                title: "Hello",
+                members: [OID_1],
+            })).rejects.toThrow(BadRequestError);
+        });
+
+        test("rejects a nonexistent member", async () => {
+            await expect(service.createChat(OID_1.toString(), {
+                title: "Hello",
+                members: [OID_3],
+            })).rejects.toThrow(UserNotFoundError);
+        });
+
+        test("rejects a duplicate chat with the same participants", async () => {
+            await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
+            await expect(service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO)).rejects.toThrow(ChatAlreadyExistsError);
+        });
+    });
+
+    describe("getChats method", () => {
+        test("gets the chats a user is a part of", async () => {
+            const chat = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
+            // owner sees the chat
+            const ownerChats = await service.getChats(OID_1.toString());
+            expect(ownerChats.length).toBe(1);
+            expect(ownerChats[0]?._id.toString()).toStrictEqual(chat._id.toString());
+            // member sees the chat
+            const memberChats = await service.getChats(OID_2.toString());
+            expect(memberChats.length).toBe(1);
+            // a user in no chats sees an empty array
+            const noneChats = await service.getChats(OID_3.toString());
+            expect(noneChats).toEqual([]);
         });
     });
 

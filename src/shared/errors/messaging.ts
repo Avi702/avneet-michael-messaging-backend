@@ -41,3 +41,10 @@ export class UserOwnsChatError extends ConflictError {
         this.code = "USER_OWNS_CHAT";
     }
 }
+
+export class ChatAlreadyExistsError extends ConflictError {
+    constructor(chatId: string) {
+        super(`A chat with the same members already exists: ${chatId}`);
+        this.code = "CHAT_ALREADY_EXISTS";
+    }
+}

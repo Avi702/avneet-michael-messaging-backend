@@ -30,6 +30,7 @@ describe("MessagingRepository", () => {
 
     const GENERIC_CHAT_CREATION_DTO = {
         title: "Hello",
+        members: [OID_3],
     };
 
     const GENERIC_IMAGE_CREATION_DTO = {
@@ -44,7 +45,7 @@ describe("MessagingRepository", () => {
             const chat = await repository.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
             expect(chat.owner).toStrictEqual(OID_1);
             expect(chat.title).toBe("Hello");
-            expect(chat.members).toEqual([]);
+            expect(chat.members).toEqual([OID_3]);
         });
     });
 
@@ -66,7 +67,7 @@ describe("MessagingRepository", () => {
             const chat = await repository.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
             const response = await repository.addMemberToChat(chat._id.toString(), OID_2.toString());
             expect(response).not.toBe(null);
-            expect(response?.members).toStrictEqual([OID_2]);
+            expect(response?.members).toStrictEqual([OID_3, OID_2]);
         });
     });
     
@@ -75,10 +76,10 @@ describe("MessagingRepository", () => {
             const chat = await repository.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
             const response1 = await repository.addMemberToChat(chat._id.toString(), OID_2.toString());
             expect(response1).not.toBe(null);
-            expect(response1?.members).toStrictEqual([OID_2]);
+            expect(response1?.members).toStrictEqual([OID_3, OID_2]);
             const response2 = await repository.removeMemberFromChat(chat._id.toString(), OID_2.toString());
             expect(response2).not.toBe(null);
-            expect(response2?.members).toStrictEqual([]);
+            expect(response2?.members).toStrictEqual([OID_3]);
         });
     });
 

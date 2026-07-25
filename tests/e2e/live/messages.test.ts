@@ -75,7 +75,8 @@ describe("message:send", () => {
 
     test("rejects not in chat", async () => {
         // Create chat as Alice
-        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello" }, userAlice.accessToken);
+        const member = await makeUser(server.baseUrl);
+        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello", members: [member.user._id.toString()] }, userAlice.accessToken);
         const createChatJson = await createChatResult.json();
         const promise = extractResponse(socketBob, "reply:message:send");
         // Send message as Bob; should fail
@@ -89,7 +90,8 @@ describe("message:send", () => {
 
     test("successfully sends a message", async () => {
         // Create chat as Alice
-        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello" }, userAlice.accessToken);
+        const member = await makeUser(server.baseUrl);
+        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello", members: [member.user._id.toString()] }, userAlice.accessToken);
         const createChatJson = await createChatResult.json();
         // Add Bob to chat
         await makeRequest(server.baseUrl, "messaging/addMemberToChat", { chatId: createChatJson._id, userId: userBob.user._id.toString() }, userAlice.accessToken);
@@ -105,7 +107,8 @@ describe("message:send", () => {
 
     test("successfully broadcasts message to other users in chat", async () => {
         // Create chat as Alice
-        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello" }, userAlice.accessToken);
+        const member = await makeUser(server.baseUrl);
+        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello", members: [member.user._id.toString()] }, userAlice.accessToken);
         const createChatJson = await createChatResult.json();
         // Add Bob to chat
         await makeRequest(server.baseUrl, "messaging/addMemberToChat", { chatId: createChatJson._id, userId: userBob.user._id.toString() }, userAlice.accessToken);
@@ -145,7 +148,8 @@ describe("message:get", () => {
 
     test("rejects not in chat", async () => {
         // Create chat as Alice
-        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello" }, userAlice.accessToken);
+        const member = await makeUser(server.baseUrl);
+        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello", members: [member.user._id.toString()] }, userAlice.accessToken);
         const createChatJson = await createChatResult.json();
         const promise = extractResponse(socketBob, "reply:message:get");
         // Get messages as Bob; should fail
@@ -159,7 +163,8 @@ describe("message:get", () => {
     test("successfully gets message", async () => {
         // This only tests communication of the message
         // Intended behavior (pagination, etc.) is tested in unit testing
-        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello" }, userAlice.accessToken);
+        const member = await makeUser(server.baseUrl);
+        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello", members: [member.user._id.toString()] }, userAlice.accessToken);
         const createChatJson = await createChatResult.json();
         // Add Bob
         await makeRequest(server.baseUrl, "messaging/addMemberToChat", { chatId: createChatJson._id, userId: userBob.user._id.toString() }, userAlice.accessToken);
@@ -203,7 +208,8 @@ describe("image uploading", () => {
 
     test("rejects not owner of message", async () => {
         // Create chat as Alice
-        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello" }, userAlice.accessToken);
+        const member = await makeUser(server.baseUrl);
+        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello", members: [member.user._id.toString()] }, userAlice.accessToken);
         const createChatJson = await createChatResult.json();
         // Add Bob to chat
         await makeRequest(server.baseUrl, "messaging/addMemberToChat", { chatId: createChatJson._id, userId: userBob.user._id.toString() }, userAlice.accessToken);
@@ -226,7 +232,8 @@ describe("image uploading", () => {
 
     test("accepts valid input", async () => {
         // Create chat as Alice
-        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello" }, userAlice.accessToken);
+        const member = await makeUser(server.baseUrl);
+        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello", members: [member.user._id.toString()] }, userAlice.accessToken);
         const createChatJson = await createChatResult.json();
         // Add Bob to chat
         await makeRequest(server.baseUrl, "messaging/addMemberToChat", { chatId: createChatJson._id, userId: userBob.user._id.toString() }, userAlice.accessToken);
@@ -278,7 +285,8 @@ describe("image getting", () => {
 
     test("rejects not in chat", async () => {
         // Create chat as Alice
-        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello" }, userAlice.accessToken);
+        const member = await makeUser(server.baseUrl);
+        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello", members: [member.user._id.toString()] }, userAlice.accessToken);
         const createChatJson = await createChatResult.json();
         // Send message as Alice
         const promise = extractResponse(socketAlice, "reply:message:send");
@@ -302,7 +310,8 @@ describe("image getting", () => {
 
     test("accepts valid input", async () => {
         // Create chat as Alice
-        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello" }, userAlice.accessToken);
+        const member = await makeUser(server.baseUrl);
+        const createChatResult = await makeRequest(server.baseUrl, "messaging/createChat", { title: "hello", members: [member.user._id.toString()] }, userAlice.accessToken);
         const createChatJson = await createChatResult.json();
         // Add Bob to chat
         await makeRequest(server.baseUrl, "messaging/addMemberToChat", { chatId: createChatJson._id, userId: userBob.user._id.toString() }, userAlice.accessToken);

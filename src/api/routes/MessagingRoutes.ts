@@ -15,6 +15,7 @@ export class MessagingRoutes extends BaseRoutes {
 
         this.router.post("/createChat", authenticate(this.authenticationService), validate(createChatSchema), controller.createChat);
         this.router.post("/getChat", authenticate(this.authenticationService), validate(getChatSchema), controller.getChat);
+        this.router.post("/getChats", authenticate(this.authenticationService), controller.getChats);
         this.router.post("/addMemberToChat", authenticate(this.authenticationService), validate(addMemberToChatSchema), controller.addMemberToChat);
         this.router.post("/removeMemberFromChat", authenticate(this.authenticationService), validate(removeMemberFromChatSchema), controller.removeMemberFromChat);
         this.router.post("/updateChatInformation", authenticate(this.authenticationService), validate(updateChatInformationSchema), controller.updateChatInformation);

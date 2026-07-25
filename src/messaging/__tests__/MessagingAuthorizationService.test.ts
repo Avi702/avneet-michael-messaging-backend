@@ -14,6 +14,7 @@ const OID_3 = new mongoose.Types.ObjectId("dfffffffffffffffffffffff");
 
 const GENERIC_CHAT_CREATION_DTO = {
     title: "Hello",
+    members: [OID_2],
 };
 
 describe("MessagingRepository", () => {
