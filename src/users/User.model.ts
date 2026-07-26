@@ -15,6 +15,10 @@ const userSchema = new Schema<User>({
         type: String,
         required: true,
     },
+    bio: {
+        type: String,
+        default: "",
+    },
     email: {
         type: String,
         required: true,

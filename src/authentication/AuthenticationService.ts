@@ -1,7 +1,7 @@
 import { InvalidTokenError, PasswordIncorrectError } from "../shared/errors/authentication";
 import { UserNotFoundError } from "../shared/errors/users";
 import { CreateUserDto } from "../users/dto/CreateUserDto";
-import { PublicUser, User } from "../users/User.types";
+import { PrivateUser, User } from "../users/User.types";
 import { UserRepository } from "../users/UserRepository";
 import { UserService } from "../users/UserService";
 import { JwtService, TokenPayload } from "./JwtService";
@@ -10,7 +10,7 @@ import { PasswordService } from "./PasswordService";
 export interface LoginResult {
     accessToken: string;
     refreshToken: string;
-    user: PublicUser;
+    user: PrivateUser;
 }
 
 export interface RefreshResult {
@@ -55,7 +55,7 @@ export class AuthenticationService {
         return {
             accessToken: this.jwtService.generateAccessToken(payload),
             refreshToken: this.jwtService.generateRefreshToken(payload),
-            user: this.users.publicizeUser(user),
+            user: this.users.privatizeUser(user),
         };
     }
 
@@ -66,7 +66,7 @@ export class AuthenticationService {
      * @throws If user is not at least UserService.MINIMUM_AGE years old
      * @throws If user already exists with that email
      */
-    public async register(data: CreateUserDto): Promise<PublicUser> {
+    public async register(data: CreateUserDto): Promise<PrivateUser> {
         // Hash the password
         const hashedData = {
             ...data,
@@ -84,7 +84,7 @@ export class AuthenticationService {
      * @throws If the access token is invalid
      * @throws If the user was not found
      */
-    public async authenticate(accessToken: string): Promise<PublicUser> {
+    public async authenticate(accessToken: string): Promise<PrivateUser> {
         let payload;
         try {
             payload = this.jwtService.verifyAccessToken(accessToken);
@@ -96,7 +96,7 @@ export class AuthenticationService {
         if (!user) {
             throw new UserNotFoundError(`(logged in user)`);
         }
-        return this.users.publicizeUser(user);
+        return this.users.privatizeUser(user);
     }
 
     /**

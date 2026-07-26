@@ -1,13 +1,13 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { AuthenticationService } from "../../authentication/AuthenticationService";
-import { PublicUser } from "../../users/User.types";
+import { PrivateUser } from "../../users/User.types";
 import { UnauthorizedError } from "../../shared/errors/common";
 
 declare global {
     namespace Express {
         interface Request {
             // guaranteed to exist if passing authentication
-            user?: PublicUser;
+            user?: PrivateUser;
             actorId: string;
         }
     }

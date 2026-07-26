@@ -73,7 +73,7 @@ If successful:
 {
     accessToken: string,
     refreshToken: string,
-    user: PublicUser        // see src/users/User.types.ts
+    user: PrivateUser        // see src/users/User.types.ts; the user's own record, including private fields
 }
 ```
 Failures may return:
@@ -105,12 +105,15 @@ Endpoint: `POST /api/v1/authentication/register`
 If successful:
 ```js
 {
-    // see src/user/User.types.ts for more information; this is a PublicUser
+    // see src/users/User.types.ts for more information; this is a PrivateUser (the user's own record)
     _id: string,
     createdAt: Date,
     displayName: string,
+    bio: string,
     lastOnline: Date,
-    isOnline: boolean
+    isOnline: boolean,
+    email: string,
+    birthDate: string // YYYY-MM-DD
 }
 ```
 Failures may return:
@@ -135,12 +138,15 @@ Endpoint: `POST /api/v1/authentication/authenticate`
 If successful:
 ```js
 {
-    // see src/user/User.types.ts for more information; this is a PublicUser
+    // see src/users/User.types.ts for more information; this is a PrivateUser (the user's own record)
     _id: string,
     createdAt: Date,
     displayName: string,
+    bio: string,
     lastOnline: Date,
-    isOnline: boolean
+    isOnline: boolean,
+    email: string,
+    birthDate: string // YYYY-MM-DD
 }
 ```
 Failures may return:
@@ -227,10 +233,11 @@ Endpoint: `POST /api/v1/users/getUserById`
 If successful:
 ```js
 {
-    // see src/user/User.types.ts for more information; this is a PublicUser
+    // see src/users/User.types.ts for more information; this is a PublicUser
     _id: string,
     createdAt: Date,
     displayName: string,
+    bio: string,
     lastOnline: Date,
     isOnline: boolean
 }
@@ -256,10 +263,11 @@ Endpoint: `POST /api/v1/users/getUserByEmail`
 If successful:
 ```js
 {
-    // see src/user/User.types.ts for more information; this is a PublicUser
+    // see src/users/User.types.ts for more information; this is a PublicUser
     _id: string,
     createdAt: Date,
     displayName: string,
+    bio: string,
     lastOnline: Date,
     isOnline: boolean
 }
@@ -276,10 +284,12 @@ Endpoint: `POST /api/v1/users/updateProfile`
 #### Body
 ```js
 {
-    displayName: string
+    displayName: string,
+    bio?: string
 }
 ```
 - Display name must be between 3 and 64 characters (inclusive).
+- Bio is optional and must be at most 256 characters (inclusive).
 
 #### Responses
 If successful:

@@ -1,7 +1,7 @@
 import type { CreateUserDto } from "./dto/CreateUserDto";
 import type { UpdateProfileDto } from "./dto/UpdateProfileDto";
 import { UserModel } from "./User.model";
-import type { PublicUser, User } from "./User.types";
+import type { PrivateUser, PublicUser, User } from "./User.types";
 
 export class UserRepository {
     /**
@@ -91,9 +91,23 @@ export class UserRepository {
         return {
             _id: user._id,
             displayName: user.displayName,
+            bio: user.bio,
             createdAt: user.createdAt,
             lastOnline: user.lastOnline,
             isOnline: user.isOnline,
+        };
+    }
+
+    /**
+     * Privatizes (strips only the password) a User for the user themselves
+     * @param user The original User object
+     * @returns A PrivateUser containing the user's own private fields
+     */
+    public privatizeUser(user: User): PrivateUser {
+        return {
+            ...this.publicizeUser(user),
+            email: user.email,
+            birthDate: user.birthDate,
         };
     }
 }

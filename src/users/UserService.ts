@@ -2,7 +2,7 @@ import { BadRequestError, UnauthorizedError } from "../shared/errors/common";
 import { UserAlreadyExistsError, UserNotFoundError, UserNotOldEnoughError } from "../shared/errors/users";
 import type { CreateUserDto } from "./dto/CreateUserDto";
 import type { UpdateProfileDto } from "./dto/UpdateProfileDto";
-import type { PublicUser, User } from "./User.types";
+import type { PrivateUser, PublicUser, User } from "./User.types";
 import { UserAction, UserAuthorizationService } from "./UserAuthorizationService";
 import type { UserRepository } from "./UserRepository";
 
@@ -104,7 +104,7 @@ export class UserService {
      * @throws UserNotOldEnoughError if user is not at least MINIMUM_AGE years old
      * @throws UserAlreadyExistsError if user already exists with that email
      */
-    public async createUser(data: CreateUserDto): Promise<PublicUser> {
+    public async createUser(data: CreateUserDto): Promise<PrivateUser> {
         if (!this.birthDateIsValid(data.birthDate)) {
             throw new UserNotOldEnoughError();
         }
@@ -112,7 +112,7 @@ export class UserService {
         if (isExistingUser) {
             throw new UserAlreadyExistsError(data.email);
         }
-        return this.users.publicizeUser(await this.users.create(data));
+        return this.users.privatizeUser(await this.users.create(data));
     }
 
     /**

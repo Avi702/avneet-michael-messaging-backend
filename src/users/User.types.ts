@@ -5,10 +5,13 @@ export interface User {
     createdAt: Date;
     birthDate: string;
     displayName: string;
+    bio: string;
     email: string;
     password: string;
     lastOnline: Date;
     isOnline: boolean;
 }
 
-export type PublicUser = Pick<User, "_id" | "createdAt" | "displayName" | "lastOnline" | "isOnline">;
+export type PublicUser = Pick<User, "_id" | "createdAt" | "displayName" | "bio" | "lastOnline" | "isOnline">;
+
+export type PrivateUser = PublicUser & Pick<User, "email" | "birthDate">;

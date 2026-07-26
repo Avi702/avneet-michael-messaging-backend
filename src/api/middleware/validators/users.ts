@@ -11,4 +11,5 @@ export const getUserByEmailSchema = z.object({
 
 export const updateProfileSchema = z.object({
     displayName: z.string().min(3).max(64),
+    bio: z.string().max(256).optional(),
 });
