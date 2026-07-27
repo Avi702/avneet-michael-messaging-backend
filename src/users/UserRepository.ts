@@ -41,6 +41,22 @@ export class UserRepository {
     }
 
     /**
+     * Searches for users by a partial, case insensitive display name
+     * @param query The partial display name to search for
+     * @param excludeId The ID of a user to exclude from the results (the searcher)
+     * @param limit The maximum number of users to return
+     * @returns An array of matching users
+     */
+    public async searchByDisplayName(query: string, excludeId: string, limit: number = 20): Promise<User[]> {
+        // Escape regex special characters so the query is treated as literal text
+        const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        return await UserModel.find({
+            _id: { $ne: excludeId },
+            displayName: { $regex: escaped, $options: "i" },
+        }).limit(limit).lean().exec();
+    }
+
+    /**
      * Updates a user's profile fields
      * @param id The ID of the target user
      * @param data The fields to update

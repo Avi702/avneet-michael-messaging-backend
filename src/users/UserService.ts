@@ -97,6 +97,21 @@ export class UserService {
     }
 
     /**
+     * Searches for users by a partial display name
+     * @param query The partial display name to search for
+     * @param actorId The ID of the user performing the action
+     * @returns An array of matching PublicUsers, excluding the actor
+     * @throws UnauthorizedError if action is not authorized
+     */
+    public async searchUsers(query: string, actorId: string): Promise<PublicUser[]> {
+        if (!(await this.authorization.authorizeAction(actorId, actorId, UserAction.Search))) {
+            throw new UnauthorizedError(`User is not permitted to perform this action`);
+        }
+        const users = await this.users.searchByDisplayName(query, actorId);
+        return users.map(user => this.users.publicizeUser(user));
+    }
+
+    /**
      * Creates a user
      * @internal DO NOT USE THIS METHOD. Intended to be called by AuthenticationService; this writes a raw password.
      * @param data The DTO for creating a user

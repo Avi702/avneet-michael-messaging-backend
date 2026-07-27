@@ -105,6 +105,30 @@ describe("UserService", () => {
         });
     });
 
+    describe("searchUsers method", () => {
+        test("finds users by partial, case insensitive display name", async () => {
+            await service.createUser({ displayName: "Alice Smith", birthDate: "2000-01-01", email: "alice@example.com", password: "password" });
+            await service.createUser({ displayName: "Bob Jones", birthDate: "2000-01-01", email: "bob@example.com", password: "password" });
+            const results = await service.searchUsers("ALI", OID_1.toString());
+            expect(results.length).toBe(1);
+            expect(results[0]?.displayName).toBe("Alice Smith");
+        });
+
+        test("excludes the searcher from the results", async () => {
+            const me = await service.createUser({ displayName: "Alice Smith", birthDate: "2000-01-01", email: "alice@example.com", password: "password" });
+            const results = await service.searchUsers("alice", me._id.toString());
+            expect(results.length).toBe(0);
+        });
+
+        test("only includes public data", async () => {
+            await service.createUser(GENERIC_USER_CREATION_DTO);
+            const results = await service.searchUsers("john", OID_1.toString());
+            expect(results.length).toBe(1);
+            expect((results[0] as any).password).toBe(undefined);
+            expect((results[0] as any).email).toBe(undefined);
+        });
+    });
+
     describe("createUser method", () => {
         test("creates new user", async () => {
             const user = await service.createUser(GENERIC_USER_CREATION_DTO);

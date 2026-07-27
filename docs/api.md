@@ -215,6 +215,7 @@ Base URL: `/api/v1/users`
 | --- | --- | --- |
 | getUserById | Fetches the `PublicUser` information for a user | ✅ |
 | getUserByEmail | Fetches the `PublicUser` information for a user | ✅ |
+| searchUsers | Searches for users by display name | ✅ |
 | updateProfile | Updates a user's profile information | ✅ |
 
 ### Get User By ID 🔒
@@ -276,6 +277,35 @@ Failures may return:
 | Error | Status | Code | Reason |
 | --- | --- | --- | --- |
 | UserNotFound | 404 | USER_NOT_FOUND | The user account with that ID was not found |
+
+### Search Users 🔒
+
+Endpoint: `POST /api/v1/users/searchUsers`
+
+#### Body
+```js
+{
+    query: string
+}
+```
+- Query must be between 1 and 64 characters (inclusive).
+
+#### Responses
+If successful:
+```js
+[
+    // an array of PublicUsers; see src/users/User.types.ts
+    {
+        _id: string,
+        createdAt: Date,
+        displayName: string,
+        bio: string,
+        lastOnline: Date,
+        isOnline: boolean
+    }
+]
+```
+The query is matched against `displayName` case insensitively (partial matches allowed). The logged in user is excluded from the results, and at most 20 users are returned. If no users match, an empty array is returned. There should be no additional failures for this route unless the user is not logged in.
 
 ### Update Profile 🔒
 
