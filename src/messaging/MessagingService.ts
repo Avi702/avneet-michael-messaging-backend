@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { BadRequestError, UnauthorizedError } from "../shared/errors/common";
-import { ChatAlreadyExistsError, ChatNotFoundError, ImageNotFoundError, MessageNotFoundError, UserAlreadyInChatError, UserNotInChatError, UserOwnsChatError } from "../shared/errors/messaging";
+import { ChatNotFoundError, ImageNotFoundError, MessageNotFoundError, UserAlreadyInChatError, UserNotInChatError, UserOwnsChatError } from "../shared/errors/messaging";
 import { UserNotFoundError } from "../shared/errors/users";
 import { UserRepository } from "../users/UserRepository";
 import { Chat } from "./Chat.types";
@@ -28,7 +28,7 @@ export class MessagingService {
      * @param data The DTO for creating a chat
      * @throws BadRequestError if no members remain after removing the owner
      * @throws UserNotFoundError if any of the members does not exist
-     * @throws ChatAlreadyExistsError if a chat with the same participants already exists
+     * @returns the existing chat if one with the same participants already exists, otherwise a new chat
      */
     public async createChat(actorId: string, data: CreateChatDto): Promise<Chat> {
         // Remove duplicates and the owner (who is tracked separately, not a member)
@@ -51,10 +51,10 @@ export class MessagingService {
                 throw new UserNotFoundError(member.toString());
             }
         }
-        // A chat with the same set of participants (owner and members) may not already exist
+        // If a chat with the same set of participants (owner and members) already exists, return it
         const existing = await this.messages.findChatByParticipants([actorId, ...members.map(member => member.toString())]);
         if (existing) {
-            throw new ChatAlreadyExistsError(existing._id.toString());
+            return existing;
         }
         return await this.messages.createChat(actorId, { ...data, members });
     }

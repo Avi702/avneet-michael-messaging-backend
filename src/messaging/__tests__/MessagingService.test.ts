@@ -9,7 +9,7 @@ import { MessagingService } from "../MessagingService";
 import { UserRepository } from "../../users/UserRepository";
 import { UserModel } from "../../users/User.model";
 import { BadRequestError, UnauthorizedError } from "../../shared/errors/common";
-import { ChatAlreadyExistsError, ChatNotFoundError, ImageNotFoundError, MessageNotFoundError, UserAlreadyInChatError, UserNotInChatError, UserOwnsChatError } from "../../shared/errors/messaging";
+import { ChatNotFoundError, ImageNotFoundError, MessageNotFoundError, UserAlreadyInChatError, UserNotInChatError, UserOwnsChatError } from "../../shared/errors/messaging";
 import { UserNotFoundError } from "../../shared/errors/users";
 import { ImageStorageService } from "../ImageStorageService";
 import { LocalImageStorageService } from "../LocalImageStorageService";
@@ -106,9 +106,10 @@ describe("MessagingRepository", () => {
             })).rejects.toThrow(UserNotFoundError);
         });
 
-        test("rejects a duplicate chat with the same participants", async () => {
-            await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
-            await expect(service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO)).rejects.toThrow(ChatAlreadyExistsError);
+        test("returns the existing chat when the participants already exist", async () => {
+            const first = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
+            const second = await service.createChat(OID_1.toString(), GENERIC_CHAT_CREATION_DTO);
+            expect(second._id.toString()).toBe(first._id.toString());
         });
     });
 

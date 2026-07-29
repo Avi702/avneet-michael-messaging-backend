@@ -363,7 +363,7 @@ Endpoint: `POST /api/v1/messaging/createChat`
 - Members must be an array of at least one valid MongoDB ID. These are the users added to the Chat on creation (the owner is tracked separately and is not included in `members`).
 - The owner is removed from `members` and duplicates are ignored. After this, at least one member other than the owner must remain.
 - Every member must be an existing user.
-- A Chat with the same set of participants (owner and members) may not already exist.
+- If a Chat with the same set of participants (owner and members) already exists, that existing Chat is returned instead of creating a new one.
 
 #### Responses
 If successful:
@@ -384,7 +384,6 @@ Failures may return:
 | --- | --- | --- | --- |
 | BadRequest | 400 | BAD_REQUEST | No members other than the owner were provided |
 | UserNotFound | 404 | USER_NOT_FOUND | One of the members does not exist |
-| ChatAlreadyExists | 409 | CHAT_ALREADY_EXISTS | A chat with the same participants already exists |
 
 ### Get Chat 🔒
 
