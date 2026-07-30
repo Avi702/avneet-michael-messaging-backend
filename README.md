@@ -1,6 +1,6 @@
 # Messaging Application Backend
 
-This is the backend for a messaging application project that I'm working on with Avneet Aurora and Mohnish Pothineni. I'm developing the backend, and they're developing the frontend.
+This is the backend for a messaging application project that I'm working on with Avneet Aurora and Mohnish Pothineni. This fork has some of Avneet's logic on endpoints and testcases.
 
 For the frontend, please see [the corresponding repository](https://github.com/Avi702/messaging-application-frontend).
 
